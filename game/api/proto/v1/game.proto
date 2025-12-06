@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package user.v1;
+option go_package = "github.com/BOURREAUQuentin/game/api/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+
+service GameService {
+  rpc GetQuizzes (GetQuizzesRequest) returns (GetQuizzesResponse);
+}
+
+message GetQuizzesRequest {
+
+}
+
+message GetQuizzesResponse {
+  repeated Quiz quizzes = 1;
+}
+
+message Quiz {
+  string id = 1;
+  string title = 2;
+  string type = 3;       // 'simple', 'personalise', etc.
+  string creator_id = 4;
+  string status = 5;
+  google.protobuf.Timestamp created_at = 6;
+  repeated Question questions = 7;
+}
+
+message Question {
+  string question_id = 1;
+  string text = 2;
+}
