@@ -4,22 +4,23 @@ import (
 	"context"
 
 	pb "github.com/BOURREAUQuentin/game/api/proto/v1"
-	"github.com/BOURREAUQuentin/game/internal/adapters/repository" // Import ton repo
 	"github.com/BOURREAUQuentin/game/internal/core/domain"
+	"github.com/BOURREAUQuentin/game/internal/core/ports"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GameServer struct {
 	pb.UnimplementedGameServiceServer
-	Repo repository.MongoRepository
+	QuizRepo ports.QuizRepository
 }
 
 func (s *GameServer) GetQuizzes(ctx context.Context, req *pb.GetQuizzesRequest) (*pb.GetQuizzesResponse, error) {
-	quizzesDB, err := s.Repo.FindAll(ctx)
+	quizzesDB, err := s.QuizRepo.FindAllQuizzes(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	// Format datas
 	var pbQuizzes []*pb.Quiz
 	for _, q := range quizzesDB {
 		pbQuizzes = append(pbQuizzes, &pb.Quiz{

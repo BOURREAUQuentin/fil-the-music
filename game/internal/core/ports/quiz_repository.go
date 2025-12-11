@@ -7,5 +7,5 @@ import (
 )
 
 type QuizRepository interface {
-	List(ctx context.Context) ([]domain.Quiz, error)
+	FindAllQuizzes(ctx context.Context) ([]domain.Quiz, error)
 }

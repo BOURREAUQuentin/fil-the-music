@@ -9,21 +9,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type MongoRepository struct {
-	collection *mongo.Collection
+type MongoQuizRepository struct {
+	quizCollection *mongo.Collection
 }
 
-func NewMongoRepository(db *mongo.Database) *MongoRepository {
-	return &MongoRepository{
-		collection: db.Collection("quiz"),
+// NewMongoQuizRepository Implements QuizRepository
+func NewMongoQuizRepository(db *mongo.Database) *MongoQuizRepository {
+	return &MongoQuizRepository{
+		quizCollection: db.Collection("quiz"),
 	}
 }
 
-func (r *MongoRepository) FindAll(ctx context.Context) ([]domain.Quiz, error) {
+func (r *MongoQuizRepository) FindAllQuizzes(ctx context.Context) ([]domain.Quiz, error) {
 	filter := bson.M{}
 
 	// Find collection
-	cursor, err := r.collection.Find(ctx, filter)
+	cursor, err := r.quizCollection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
