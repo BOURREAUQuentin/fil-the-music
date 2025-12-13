@@ -6,6 +6,7 @@ import (
 
 	"github.com/BOURREAUQuentin/game/internal/core/domain"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -49,4 +50,24 @@ func (r *MongoQuizRepository) FindAllQuizzes(ctx context.Context) ([]domain.Quiz
 	}
 
 	return quizzes, nil
+}
+
+func (r *MongoQuizRepository) FindQuizByID(ctx context.Context, id string) (*domain.Quiz, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{"_id": objID}
+	var doc QuizMongoDoc
+	err = r.quizCollection.FindOne(ctx, filter).Decode(&doc)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // Quiz not found
+		}
+		return nil, err
+	}
+
+	quiz := doc.ToDomain()
+	return &quiz, nil
 }

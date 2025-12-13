@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	GameService_GetQuizzes_FullMethodName  = "/user.v1.GameService/GetQuizzes"
 	GameService_GetSessions_FullMethodName = "/user.v1.GameService/GetSessions"
+	GameService_JoinQuiz_FullMethodName    = "/user.v1.GameService/JoinQuiz"
 )
 
 // GameServiceClient is the client API for GameService service.
@@ -29,6 +30,7 @@ const (
 type GameServiceClient interface {
 	GetQuizzes(ctx context.Context, in *GetQuizzesRequest, opts ...grpc.CallOption) (*GetQuizzesResponse, error)
 	GetSessions(ctx context.Context, in *GetSessionsRequest, opts ...grpc.CallOption) (*GetSessionsResponse, error)
+	JoinQuiz(ctx context.Context, in *JoinQuizRequest, opts ...grpc.CallOption) (*JoinQuizResponse, error)
 }
 
 type gameServiceClient struct {
@@ -59,12 +61,23 @@ func (c *gameServiceClient) GetSessions(ctx context.Context, in *GetSessionsRequ
 	return out, nil
 }
 
+func (c *gameServiceClient) JoinQuiz(ctx context.Context, in *JoinQuizRequest, opts ...grpc.CallOption) (*JoinQuizResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(JoinQuizResponse)
+	err := c.cc.Invoke(ctx, GameService_JoinQuiz_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GameServiceServer is the server API for GameService service.
 // All implementations must embed UnimplementedGameServiceServer
 // for forward compatibility.
 type GameServiceServer interface {
 	GetQuizzes(context.Context, *GetQuizzesRequest) (*GetQuizzesResponse, error)
 	GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error)
+	JoinQuiz(context.Context, *JoinQuizRequest) (*JoinQuizResponse, error)
 	mustEmbedUnimplementedGameServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedGameServiceServer) GetQuizzes(context.Context, *GetQuizzesReq
 }
 func (UnimplementedGameServiceServer) GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSessions not implemented")
+}
+func (UnimplementedGameServiceServer) JoinQuiz(context.Context, *JoinQuizRequest) (*JoinQuizResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method JoinQuiz not implemented")
 }
 func (UnimplementedGameServiceServer) mustEmbedUnimplementedGameServiceServer() {}
 func (UnimplementedGameServiceServer) testEmbeddedByValue()                     {}
@@ -138,6 +154,24 @@ func _GameService_GetSessions_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameService_JoinQuiz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinQuizRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServiceServer).JoinQuiz(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameService_JoinQuiz_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServiceServer).JoinQuiz(ctx, req.(*JoinQuizRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GameService_ServiceDesc is the grpc.ServiceDesc for GameService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSessions",
 			Handler:    _GameService_GetSessions_Handler,
+		},
+		{
+			MethodName: "JoinQuiz",
+			Handler:    _GameService_JoinQuiz_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

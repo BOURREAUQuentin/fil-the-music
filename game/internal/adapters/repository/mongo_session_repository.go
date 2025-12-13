@@ -7,6 +7,7 @@ import (
 
 	"github.com/BOURREAUQuentin/game/internal/core/domain"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -52,8 +53,23 @@ func (m MongoSessionRepository) GetSessions(ctx context.Context) ([]domain.Sessi
 }
 
 func (m MongoSessionRepository) CreateSession(ctx context.Context, session *domain.Session) error {
-	//TODO implement me
-	panic("implement me")
+	doc := SessionMongoDoc{
+		UserId:       session.UserId,
+		QuizId:       session.QuizId,
+		JoinedAt:     session.JoinedAt,
+		LastActivity: session.LastActivity,
+	}
+
+	result, err := m.sessionCollection.InsertOne(ctx, doc)
+	if err != nil {
+		return err
+	}
+
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		session.ID = oid.Hex()
+	}
+
+	return nil
 }
 
 func (m MongoSessionRepository) DeleteSession(ctx context.Context, session *domain.Session) error {
