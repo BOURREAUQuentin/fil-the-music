@@ -26,9 +26,11 @@ func main() {
 	db := client.Database("game")
 
 	quizRepo := repository.NewMongoQuizRepository(db)
+	sessionRepo := repository.NewMongoSessionRepository(db)
 
 	gameServer := &server.GameServer{
-		QuizRepo: quizRepo,
+		QuizRepo:    quizRepo,
+		SessionRepo: sessionRepo,
 	}
 
 	// Launch server

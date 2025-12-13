@@ -1,0 +1,13 @@
+[
+  {
+    "title": "Quiz Golang",
+    "type": "simple",
+    "creator_id": "quentin-dev",
+    "status": "published",
+    "created_at": { "$date": "2023-12-01T10:00:00Z" },
+    "questions": [
+      { "question_id": "q1", "text": "Go est-il compilé ?" },
+      { "question_id": "q2", "text": "Que signifie gRPC ?" }
+    ]
+  }
+]

@@ -11,7 +11,29 @@ import (
 
 type GameServer struct {
 	pb.UnimplementedGameServiceServer
-	QuizRepo ports.QuizRepository
+	QuizRepo    ports.QuizRepository
+	SessionRepo ports.SessionRepository
+}
+
+func (s *GameServer) GetSessions(ctx context.Context, req *pb.GetSessionsRequest) (*pb.GetSessionsResponse, error) {
+	sessionsDB, err := s.SessionRepo.GetSessions(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Format datas
+	var pbSessions []*pb.Session
+	for _, session := range sessionsDB {
+		pbSessions = append(pbSessions, &pb.Session{
+			Id:           session.ID,
+			UserId:       session.UserId,
+			QuizId:       session.QuizId,
+			JoinedAt:     timestamppb.New(session.JoinedAt),
+			LastActivity: timestamppb.New(session.LastActivity),
+		})
+	}
+
+	return &pb.GetSessionsResponse{Sessions: pbSessions}, nil
 }
 
 func (s *GameServer) GetQuizzes(ctx context.Context, req *pb.GetQuizzesRequest) (*pb.GetQuizzesResponse, error) {

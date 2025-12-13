@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 
 service GameService {
   rpc GetQuizzes (GetQuizzesRequest) returns (GetQuizzesResponse);
+  rpc GetSessions (GetSessionsRequest) returns (GetSessionsResponse);
 }
 
 message GetQuizzesRequest {
@@ -15,6 +16,22 @@ message GetQuizzesRequest {
 
 message GetQuizzesResponse {
   repeated Quiz quizzes = 1;
+}
+
+message GetSessionsRequest {
+
+}
+
+message GetSessionsResponse {
+  repeated Session sessions = 1;
+}
+
+message Session {
+  string id = 1;
+  string user_id = 2;
+  string quiz_id = 3;
+  google.protobuf.Timestamp joined_at = 4;
+  google.protobuf.Timestamp last_activity = 5;
 }
 
 message Quiz {
