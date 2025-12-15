@@ -19,6 +19,11 @@ func (s *GameServer) JoinQuiz(ctx context.Context, req *pb.JoinQuizRequest) (*pb
 		return nil, status.Errorf(codes.Internal, "failed to parse quiz ID: %v", err)
 	}
 
+	user, err := s.UserRepo.GetUserById(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
+	}
+
 	// Verify quiz_id existence
 	quiz, err := s.QuizRepo.FindQuizByID(ctx, req.QuizId)
 	if err != nil {
@@ -27,6 +32,9 @@ func (s *GameServer) JoinQuiz(ctx context.Context, req *pb.JoinQuizRequest) (*pb
 
 	if quiz == nil {
 		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", req.QuizId)
+	}
+	if user == nil {
+		return nil, status.Errorf(codes.NotFound, "user with ID %s not found", req.UserId)
 	}
 
 	now := time.Now()

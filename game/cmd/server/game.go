@@ -9,11 +9,13 @@ type GameServer struct {
 	pb.UnimplementedGameServiceServer
 	QuizRepo    ports.QuizRepository
 	SessionRepo ports.SessionRepository
+	UserRepo    ports.UserRepository
 }
 
-func NewGameServer(quizRepo ports.QuizRepository, sessionRepo ports.SessionRepository) *GameServer {
+func NewGameServer(quizRepo ports.QuizRepository, sessionRepo ports.SessionRepository, userRepo ports.UserRepository) *GameServer {
 	return &GameServer{
 		QuizRepo:    quizRepo,
 		SessionRepo: sessionRepo,
+		UserRepo:    userRepo,
 	}
 }

@@ -14,7 +14,6 @@ type MongoQuizRepository struct {
 	quizCollection *mongo.Collection
 }
 
-// NewMongoQuizRepository Implements QuizRepository
 func NewMongoQuizRepository(db *mongo.Database) *MongoQuizRepository {
 	return &MongoQuizRepository{
 		quizCollection: db.Collection("quiz"),

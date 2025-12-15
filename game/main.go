@@ -27,8 +27,9 @@ func main() {
 
 	quizRepo := repository.NewMongoQuizRepository(db)
 	sessionRepo := repository.NewMongoSessionRepository(db)
+	userRepo := repository.NewUserRepository()
 
-	gameServer := server.NewGameServer(quizRepo, sessionRepo)
+	gameServer := server.NewGameServer(quizRepo, sessionRepo, userRepo)
 
 	// Launch server
 	lis, err := net.Listen("tcp", ":50051")
