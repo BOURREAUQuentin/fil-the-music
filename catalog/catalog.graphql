@@ -1,0 +1,12 @@
+type Query {
+    track_json: [Track]
+}
+
+type Track {
+    _id: String
+    track_id: String
+    title: String
+    artist_id: String
+    album_name: String
+    release_date: String
+}
