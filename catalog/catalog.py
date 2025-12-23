@@ -16,12 +16,26 @@ HOST = '0.0.0.0'
 type_defs = load_schema_from_path('catalog.graphql')
 
 query = QueryType()
+mutation = MutationType()
 
 track = ObjectType('Track')
+artist = ObjectType('Artist')
 
 query.set_field('track_json', r.track_json)
+query.set_field('artist_json', r.artist_json)
+query.set_field('track_by_id', r.track_by_id)
+query.set_field('artist_by_id', r.artist_by_id)
 
-schema = make_executable_schema(type_defs, track, query)
+mutation.set_field('add_track', r.add_track)
+mutation.set_field('add_many_tracks', r.add_many_tracks)
+mutation.set_field('add_artist', r.add_artist)
+mutation.set_field('add_many_artists', r.add_many_artists)
+mutation.set_field('update_track', r.update_track)
+mutation.set_field('update_artist', r.update_artist)
+mutation.set_field('remove_track', r.remove_track)
+mutation.set_field('remove_artist', r.remove_artist)
+
+schema = make_executable_schema(type_defs, track, artist, query, mutation)
 
 # page d’accueil du service
 @app.route("/", methods=['GET'])
