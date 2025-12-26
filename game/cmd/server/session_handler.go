@@ -159,3 +159,52 @@ func (s *GameServer) GetActiveQuiz(ctx context.Context, req *pb.GetActiveQuizReq
 		},
 	}, nil
 }
+
+func (s *GameServer) AnswerQuestions(ctx context.Context, req *pb.AnswerQuestionsRequest) (*pb.AnswerQuestionsResponse, error) {
+	session, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve session: %v", err)
+	}
+	if session == nil {
+		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", req.UserId)
+	}
+
+	quiz, err := s.QuizRepo.FindQuizByID(ctx, session.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
+	}
+	if quiz == nil {
+		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", session.QuizId)
+	}
+
+	if len(req.Answers) != len(quiz.Questions) {
+		return nil, status.Errorf(codes.InvalidArgument, "number of answers (%d) does not match number of questions (%d)", len(req.Answers), len(quiz.Questions))
+	}
+
+	var score int32
+	var results []*pb.QuestionResult
+
+	for i, question := range quiz.Questions {
+		userAnswerIdx := req.Answers[i]
+		isCorrect := userAnswerIdx == question.CorrectAnswerIdx
+
+		if isCorrect {
+			score++
+		}
+
+		results = append(results, &pb.QuestionResult{
+			QuestionId:         question.QuestionID,
+			IsCorrect:          isCorrect,
+			CorrectAnswerIndex: question.CorrectAnswerIdx,
+			UserAnswerIndex:    userAnswerIdx,
+		})
+	}
+
+	// Delete session after quiz completion
+	s.SessionRepo.DeleteSession(ctx, session)
+
+	return &pb.AnswerQuestionsResponse{
+		Score:   score,
+		Results: results,
+	}, nil
+}

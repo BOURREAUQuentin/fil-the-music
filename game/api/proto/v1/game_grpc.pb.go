@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GameService_GetQuizzes_FullMethodName    = "/user.v1.GameService/GetQuizzes"
-	GameService_GetSessions_FullMethodName   = "/user.v1.GameService/GetSessions"
-	GameService_JoinQuiz_FullMethodName      = "/user.v1.GameService/JoinQuiz"
-	GameService_QuitQuiz_FullMethodName      = "/user.v1.GameService/QuitQuiz"
-	GameService_CreateQuiz_FullMethodName    = "/user.v1.GameService/CreateQuiz"
-	GameService_GetActiveQuiz_FullMethodName = "/user.v1.GameService/GetActiveQuiz"
+	GameService_GetQuizzes_FullMethodName      = "/user.v1.GameService/GetQuizzes"
+	GameService_GetSessions_FullMethodName     = "/user.v1.GameService/GetSessions"
+	GameService_JoinQuiz_FullMethodName        = "/user.v1.GameService/JoinQuiz"
+	GameService_QuitQuiz_FullMethodName        = "/user.v1.GameService/QuitQuiz"
+	GameService_CreateQuiz_FullMethodName      = "/user.v1.GameService/CreateQuiz"
+	GameService_GetActiveQuiz_FullMethodName   = "/user.v1.GameService/GetActiveQuiz"
+	GameService_AnswerQuestions_FullMethodName = "/user.v1.GameService/AnswerQuestions"
 )
 
 // GameServiceClient is the client API for GameService service.
@@ -37,6 +38,7 @@ type GameServiceClient interface {
 	QuitQuiz(ctx context.Context, in *QuitQuizRequest, opts ...grpc.CallOption) (*QuitQuizResponse, error)
 	CreateQuiz(ctx context.Context, in *CreateQuizRequest, opts ...grpc.CallOption) (*CreateQuizResponse, error)
 	GetActiveQuiz(ctx context.Context, in *GetActiveQuizRequest, opts ...grpc.CallOption) (*GetActiveQuizResponse, error)
+	AnswerQuestions(ctx context.Context, in *AnswerQuestionsRequest, opts ...grpc.CallOption) (*AnswerQuestionsResponse, error)
 }
 
 type gameServiceClient struct {
@@ -107,6 +109,16 @@ func (c *gameServiceClient) GetActiveQuiz(ctx context.Context, in *GetActiveQuiz
 	return out, nil
 }
 
+func (c *gameServiceClient) AnswerQuestions(ctx context.Context, in *AnswerQuestionsRequest, opts ...grpc.CallOption) (*AnswerQuestionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AnswerQuestionsResponse)
+	err := c.cc.Invoke(ctx, GameService_AnswerQuestions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GameServiceServer is the server API for GameService service.
 // All implementations must embed UnimplementedGameServiceServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type GameServiceServer interface {
 	QuitQuiz(context.Context, *QuitQuizRequest) (*QuitQuizResponse, error)
 	CreateQuiz(context.Context, *CreateQuizRequest) (*CreateQuizResponse, error)
 	GetActiveQuiz(context.Context, *GetActiveQuizRequest) (*GetActiveQuizResponse, error)
+	AnswerQuestions(context.Context, *AnswerQuestionsRequest) (*AnswerQuestionsResponse, error)
 	mustEmbedUnimplementedGameServiceServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedGameServiceServer) CreateQuiz(context.Context, *CreateQuizReq
 }
 func (UnimplementedGameServiceServer) GetActiveQuiz(context.Context, *GetActiveQuizRequest) (*GetActiveQuizResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetActiveQuiz not implemented")
+}
+func (UnimplementedGameServiceServer) AnswerQuestions(context.Context, *AnswerQuestionsRequest) (*AnswerQuestionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AnswerQuestions not implemented")
 }
 func (UnimplementedGameServiceServer) mustEmbedUnimplementedGameServiceServer() {}
 func (UnimplementedGameServiceServer) testEmbeddedByValue()                     {}
@@ -274,6 +290,24 @@ func _GameService_GetActiveQuiz_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameService_AnswerQuestions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AnswerQuestionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServiceServer).AnswerQuestions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameService_AnswerQuestions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServiceServer).AnswerQuestions(ctx, req.(*AnswerQuestionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GameService_ServiceDesc is the grpc.ServiceDesc for GameService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetActiveQuiz",
 			Handler:    _GameService_GetActiveQuiz_Handler,
+		},
+		{
+			MethodName: "AnswerQuestions",
+			Handler:    _GameService_AnswerQuestions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

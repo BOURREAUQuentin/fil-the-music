@@ -12,6 +12,7 @@ service GameService {
   rpc QuitQuiz (QuitQuizRequest) returns (QuitQuizResponse);
   rpc CreateQuiz (CreateQuizRequest) returns (CreateQuizResponse);
   rpc GetActiveQuiz (GetActiveQuizRequest) returns (GetActiveQuizResponse);
+  rpc AnswerQuestions (AnswerQuestionsRequest) returns (AnswerQuestionsResponse);
 }
 
 message GetQuizzesRequest {
@@ -20,6 +21,23 @@ message GetQuizzesRequest {
 
 message GetQuizzesResponse {
   repeated Quiz quizzes = 1;
+}
+
+message AnswerQuestionsRequest {
+  string user_id = 1;
+  repeated int32 answers = 2;
+}
+
+message AnswerQuestionsResponse {
+  int32 score = 1;
+  repeated QuestionResult results = 2;
+}
+
+message QuestionResult {
+  string question_id = 1;
+  bool is_correct = 2;
+  int32 correct_answer_index = 3;
+  int32 user_answer_index = 4;
 }
 
 message GetActiveQuizRequest {
