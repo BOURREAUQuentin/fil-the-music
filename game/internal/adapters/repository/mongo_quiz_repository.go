@@ -70,3 +70,32 @@ func (r *MongoQuizRepository) FindQuizByID(ctx context.Context, id string) (*dom
 	quiz := doc.ToDomain()
 	return &quiz, nil
 }
+
+func (r *MongoQuizRepository) CreateQuiz(ctx context.Context, quiz *domain.Quiz) error {
+	var questions []QuestionMongoDoc
+	for _, q := range quiz.Questions {
+		questions = append(questions, QuestionMongoDoc{
+			QuestionID: q.QuestionID,
+			Text:       q.Text,
+		})
+	}
+
+	doc := QuizMongoDoc{
+		Title:     quiz.Title,
+		Type:      quiz.Type,
+		CreatorID: quiz.CreatorID,
+		CreatedAt: quiz.CreatedAt,
+		Questions: questions,
+	}
+
+	result, err := r.quizCollection.InsertOne(ctx, doc)
+	if err != nil {
+		return err
+	}
+
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		quiz.ID = oid.Hex()
+	}
+
+	return nil
+}

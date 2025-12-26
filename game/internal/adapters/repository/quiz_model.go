@@ -12,7 +12,6 @@ type QuizMongoDoc struct {
 	Title     string             `bson:"title"`
 	Type      string             `bson:"type"`
 	CreatorID string             `bson:"creator_id"`
-	Status    string             `bson:"status"`
 	CreatedAt time.Time          `bson:"created_at"`
 	Questions []QuestionMongoDoc `bson:"questions"`
 }
@@ -37,7 +36,6 @@ func (d *QuizMongoDoc) ToDomain() domain.Quiz {
 		Title:     d.Title,
 		Type:      d.Type,
 		CreatorID: d.CreatorID,
-		Status:    d.Status,
 		CreatedAt: d.CreatedAt,
 		Questions: questions,
 	}

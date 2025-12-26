@@ -10,6 +10,7 @@ service GameService {
   rpc GetSessions (GetSessionsRequest) returns (GetSessionsResponse);
   rpc JoinQuiz (JoinQuizRequest) returns (JoinQuizResponse);
   rpc QuitQuiz (QuitQuizRequest) returns (QuitQuizResponse);
+  rpc CreateQuiz (CreateQuizRequest) returns (CreateQuizResponse);
 }
 
 message GetQuizzesRequest {
@@ -18,6 +19,17 @@ message GetQuizzesRequest {
 
 message GetQuizzesResponse {
   repeated Quiz quizzes = 1;
+}
+
+message CreateQuizRequest {
+  string title = 1;
+  string type = 2;
+  string creator_id = 3;
+  repeated Question questions = 4;
+}
+
+message CreateQuizResponse {
+  Quiz quiz = 1;
 }
 
 message GetSessionsRequest {
@@ -59,9 +71,8 @@ message Quiz {
   string title = 2;
   string type = 3;       // 'simple', 'personalise', etc.
   string creator_id = 4;
-  string status = 5;
-  google.protobuf.Timestamp created_at = 6;
-  repeated Question questions = 7;
+  google.protobuf.Timestamp created_at = 5;
+  repeated Question questions = 6;
 }
 
 message Question {

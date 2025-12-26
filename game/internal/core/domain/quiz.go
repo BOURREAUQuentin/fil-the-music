@@ -7,7 +7,6 @@ type Quiz struct {
 	Title     string
 	Type      string
 	CreatorID string
-	Status    string
 	CreatedAt time.Time
 	Questions []Question
 }
