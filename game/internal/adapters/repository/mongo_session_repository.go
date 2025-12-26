@@ -73,8 +73,13 @@ func (m MongoSessionRepository) CreateSession(ctx context.Context, session *doma
 }
 
 func (m MongoSessionRepository) DeleteSession(ctx context.Context, session *domain.Session) error {
-	//TODO implement me
-	panic("implement me")
+	filter := bson.M{
+		"user_id": session.UserId,
+		"quiz_id": session.QuizId,
+	}
+
+	_, err := m.sessionCollection.DeleteOne(ctx, filter)
+	return err
 }
 
 func (m MongoSessionRepository) UpdateActivity(ctx context.Context, sessionId string, lastActivity time.Time) error {

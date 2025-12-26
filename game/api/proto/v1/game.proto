@@ -9,6 +9,7 @@ service GameService {
   rpc GetQuizzes (GetQuizzesRequest) returns (GetQuizzesResponse);
   rpc GetSessions (GetSessionsRequest) returns (GetSessionsResponse);
   rpc JoinQuiz (JoinQuizRequest) returns (JoinQuizResponse);
+  rpc QuitQuiz (QuitQuizRequest) returns (QuitQuizResponse);
 }
 
 message GetQuizzesRequest {
@@ -34,6 +35,15 @@ message JoinQuizRequest {
 
 message JoinQuizResponse {
   Session session = 1;
+}
+
+message QuitQuizRequest {
+  string user_id = 1;
+  string quiz_id = 2;
+}
+
+message QuitQuizResponse {
+  bool success = 1;
 }
 
 message Session {
