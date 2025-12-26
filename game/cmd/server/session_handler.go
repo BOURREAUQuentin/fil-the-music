@@ -37,6 +37,15 @@ func (s *GameServer) JoinQuiz(ctx context.Context, req *pb.JoinQuizRequest) (*pb
 		return nil, status.Errorf(codes.NotFound, "user with ID %s not found", req.UserId)
 	}
 
+	// Check if user already has an active session
+	existingSession, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to check existing session: %v", err)
+	}
+	if existingSession != nil {
+		return nil, status.Errorf(codes.AlreadyExists, "user %s already has an active session", req.UserId)
+	}
+
 	now := time.Now()
 	session := &domain.Session{
 		UserId:       req.UserId,
@@ -120,4 +129,33 @@ func (s *GameServer) GetSessions(ctx context.Context, req *pb.GetSessionsRequest
 	}
 
 	return &pb.GetSessionsResponse{Sessions: pbSessions}, nil
+}
+
+func (s *GameServer) GetActiveQuiz(ctx context.Context, req *pb.GetActiveQuizRequest) (*pb.GetActiveQuizResponse, error) {
+	session, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve session: %v", err)
+	}
+	if session == nil {
+		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", req.UserId)
+	}
+
+	quiz, err := s.QuizRepo.FindQuizByID(ctx, session.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
+	}
+	if quiz == nil {
+		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", session.QuizId)
+	}
+
+	return &pb.GetActiveQuizResponse{
+		Quiz: &pb.Quiz{
+			Id:        quiz.ID,
+			Title:     quiz.Title,
+			Type:      quiz.Type,
+			CreatorId: quiz.CreatorID,
+			CreatedAt: timestamppb.New(quiz.CreatedAt),
+			Questions: mapQuestionsToPb(quiz.Questions),
+		},
+	}, nil
 }

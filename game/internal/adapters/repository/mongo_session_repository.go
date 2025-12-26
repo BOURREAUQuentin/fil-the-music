@@ -52,6 +52,21 @@ func (m MongoSessionRepository) GetSessions(ctx context.Context) ([]domain.Sessi
 	return sessions, nil
 }
 
+func (m MongoSessionRepository) GetSessionByUserId(ctx context.Context, userId string) (*domain.Session, error) {
+	filter := bson.M{"user_id": userId}
+	var doc SessionMongoDoc
+	err := m.sessionCollection.FindOne(ctx, filter).Decode(&doc)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // Session not found
+		}
+		return nil, err
+	}
+
+	session := doc.ToDomain()
+	return &session, nil
+}
+
 func (m MongoSessionRepository) CreateSession(ctx context.Context, session *domain.Session) error {
 	doc := SessionMongoDoc{
 		UserId:       session.UserId,

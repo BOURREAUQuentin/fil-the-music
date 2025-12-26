@@ -11,6 +11,7 @@ service GameService {
   rpc JoinQuiz (JoinQuizRequest) returns (JoinQuizResponse);
   rpc QuitQuiz (QuitQuizRequest) returns (QuitQuizResponse);
   rpc CreateQuiz (CreateQuizRequest) returns (CreateQuizResponse);
+  rpc GetActiveQuiz (GetActiveQuizRequest) returns (GetActiveQuizResponse);
 }
 
 message GetQuizzesRequest {
@@ -19,6 +20,14 @@ message GetQuizzesRequest {
 
 message GetQuizzesResponse {
   repeated Quiz quizzes = 1;
+}
+
+message GetActiveQuizRequest {
+  string user_id = 1;
+}
+
+message GetActiveQuizResponse {
+  Quiz quiz = 1;
 }
 
 message CreateQuizRequest {
