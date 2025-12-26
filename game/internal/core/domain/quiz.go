@@ -12,6 +12,8 @@ type Quiz struct {
 }
 
 type Question struct {
-	QuestionID string
-	Text       string
+	QuestionID       string
+	Text             string
+	Choices          []string
+	CorrectAnswerIdx int32
 }

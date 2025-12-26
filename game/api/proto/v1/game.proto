@@ -78,4 +78,6 @@ message Quiz {
 message Question {
   string question_id = 1;
   string text = 2;
+  repeated string choices = 3;
+  int32 correct_answer_index = 4;
 }

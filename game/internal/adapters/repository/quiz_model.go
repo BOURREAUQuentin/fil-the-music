@@ -17,8 +17,10 @@ type QuizMongoDoc struct {
 }
 
 type QuestionMongoDoc struct {
-	QuestionID string `bson:"question_id"`
-	Text       string `bson:"text"`
+	QuestionID       string   `bson:"question_id"`
+	Text             string   `bson:"text"`
+	Choices          []string `bson:"choices"`
+	CorrectAnswerIdx int32    `bson:"correct_answer_index"`
 }
 
 // ToDomain convert BSON document into cleaned data
@@ -26,8 +28,10 @@ func (d *QuizMongoDoc) ToDomain() domain.Quiz {
 	questions := make([]domain.Question, len(d.Questions))
 	for i, q := range d.Questions {
 		questions[i] = domain.Question{
-			QuestionID: q.QuestionID,
-			Text:       q.Text,
+			QuestionID:       q.QuestionID,
+			Text:             q.Text,
+			Choices:          q.Choices,
+			CorrectAnswerIdx: q.CorrectAnswerIdx,
 		}
 	}
 

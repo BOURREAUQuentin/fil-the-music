@@ -647,11 +647,13 @@ func (x *Quiz) GetQuestions() []*Question {
 }
 
 type Question struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	QuestionId    string                 `protobuf:"bytes,1,opt,name=question_id,json=questionId,proto3" json:"question_id,omitempty"`
-	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	QuestionId         string                 `protobuf:"bytes,1,opt,name=question_id,json=questionId,proto3" json:"question_id,omitempty"`
+	Text               string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	Choices            []string               `protobuf:"bytes,3,rep,name=choices,proto3" json:"choices,omitempty"`
+	CorrectAnswerIndex int32                  `protobuf:"varint,4,opt,name=correct_answer_index,json=correctAnswerIndex,proto3" json:"correct_answer_index,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Question) Reset() {
@@ -698,6 +700,20 @@ func (x *Question) GetText() string {
 	return ""
 }
 
+func (x *Question) GetChoices() []string {
+	if x != nil {
+		return x.Choices
+	}
+	return nil
+}
+
+func (x *Question) GetCorrectAnswerIndex() int32 {
+	if x != nil {
+		return x.CorrectAnswerIndex
+	}
+	return 0
+}
+
 var File_api_proto_v1_game_proto protoreflect.FileDescriptor
 
 const file_api_proto_v1_game_proto_rawDesc = "" +
@@ -741,11 +757,13 @@ const file_api_proto_v1_game_proto_rawDesc = "" +
 	"creator_id\x18\x04 \x01(\tR\tcreatorId\x129\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12/\n" +
-	"\tquestions\x18\x06 \x03(\v2\x11.user.v1.QuestionR\tquestions\"?\n" +
+	"\tquestions\x18\x06 \x03(\v2\x11.user.v1.QuestionR\tquestions\"\x8b\x01\n" +
 	"\bQuestion\x12\x1f\n" +
 	"\vquestion_id\x18\x01 \x01(\tR\n" +
 	"questionId\x12\x12\n" +
-	"\x04text\x18\x02 \x01(\tR\x04text2\xe7\x02\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x18\n" +
+	"\achoices\x18\x03 \x03(\tR\achoices\x120\n" +
+	"\x14correct_answer_index\x18\x04 \x01(\x05R\x12correctAnswerIndex2\xe7\x02\n" +
 	"\vGameService\x12E\n" +
 	"\n" +
 	"GetQuizzes\x12\x1a.user.v1.GetQuizzesRequest\x1a\x1b.user.v1.GetQuizzesResponse\x12H\n" +

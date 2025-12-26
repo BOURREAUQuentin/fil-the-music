@@ -44,8 +44,10 @@ func (s *GameServer) CreateQuiz(ctx context.Context, req *pb.CreateQuizRequest) 
 			qID = primitive.NewObjectID().Hex()
 		}
 		questions = append(questions, domain.Question{
-			QuestionID: qID,
-			Text:       q.Text,
+			QuestionID:       qID,
+			Text:             q.Text,
+			Choices:          q.Choices,
+			CorrectAnswerIdx: q.CorrectAnswerIndex,
 		})
 	}
 
@@ -80,8 +82,10 @@ func mapQuestionsToPb(qs []domain.Question) []*pb.Question {
 	var pbQs []*pb.Question
 	for _, q := range qs {
 		pbQs = append(pbQs, &pb.Question{
-			QuestionId: q.QuestionID,
-			Text:       q.Text,
+			QuestionId:         q.QuestionID,
+			Text:               q.Text,
+			Choices:            q.Choices,
+			CorrectAnswerIndex: q.CorrectAnswerIdx,
 		})
 	}
 	return pbQs

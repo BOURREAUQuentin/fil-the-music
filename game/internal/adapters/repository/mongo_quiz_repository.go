@@ -75,8 +75,10 @@ func (r *MongoQuizRepository) CreateQuiz(ctx context.Context, quiz *domain.Quiz)
 	var questions []QuestionMongoDoc
 	for _, q := range quiz.Questions {
 		questions = append(questions, QuestionMongoDoc{
-			QuestionID: q.QuestionID,
-			Text:       q.Text,
+			QuestionID:       q.QuestionID,
+			Text:             q.Text,
+			Choices:          q.Choices,
+			CorrectAnswerIdx: q.CorrectAnswerIdx,
 		})
 	}
 
