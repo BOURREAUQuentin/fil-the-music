@@ -20,3 +20,11 @@ services:
       - MONGO_URI=mongodb://root:example@mongodb:27017/game?authSource=admin
     depends_on:
       - mongodb
+
+  gateway:
+    build: ./gateway
+    container_name: api_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - game
