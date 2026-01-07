@@ -47,7 +47,7 @@ app.use('/graphql', createProxyMiddleware({
     changeOrigin: true,
 }));
 
-// Configure GAME service (gRPC)
+// Configure GAME service
 const PROTO_PATH = path.join(__dirname, '../proto/game.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
@@ -77,82 +77,40 @@ const grpcCall = (method: Function, payload: any): Promise<any> => {
 // Game Routes
 const gameRouter = express.Router();
 
-// GET /api/game/quizzes
-gameRouter.get('/quizzes', async (req, res) => {
-    try {
-        const response = await grpcCall(gameClient.GetQuizzes, {});
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
+type HttpMethod = 'get' | 'post';
 
-// POST /api/game/quizzes (Create Quiz)
-gameRouter.post('/quizzes', async (req, res) => {
-    try {
-        const response = await grpcCall(gameClient.CreateQuiz, req.body);
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
+interface GrpcRouteDefinition {
+    path: string;
+    method: HttpMethod;
+    grpcAction: string; 
+}
 
-// GET /api/game/sessions
-gameRouter.get('/sessions', async (req, res) => {
-    try {
-        const response = await grpcCall(gameClient.GetSessions, {});
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
+const GRPC_ROUTES: GrpcRouteDefinition[] = [
+    { path: '/quizzes', method: 'get', grpcAction: 'GetQuizzes' },
+    { path: '/quizzes', method: 'post', grpcAction: 'CreateQuiz' },
+    { path: '/sessions', method: 'get', grpcAction: 'GetSessions' },
+    { path: '/join', method: 'post', grpcAction: 'JoinQuiz' },
+    { path: '/quit', method: 'post', grpcAction: 'QuitQuiz' },
+    { path: '/active', method: 'get', grpcAction: 'GetActiveQuiz' },
+    { path: '/answer', method: 'post', grpcAction: 'AnswerQuestions' },
+];
 
-// POST /api/game/join
-gameRouter.post('/join', async (req, res) => {
-    try {
-        // Expecting { user_id, quiz_id } in body
-        const response = await grpcCall(gameClient.JoinQuiz, req.body);
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
+// Link routes to grpc actions
+GRPC_ROUTES.forEach(route => {
+    gameRouter[route.method](route.path, async (req, res) => {
+        try {
+            const grpcMethod = gameClient[route.grpcAction];
+            if (typeof grpcMethod !== 'function') {
+                return res.status(500).json({ error: "Internal Server Error: Method not found" });
+            }
 
-// POST /api/game/quit
-gameRouter.post('/quit', async (req, res) => {
-    try {
-        // Expecting { user_id, quiz_id } in body
-        const response = await grpcCall(gameClient.QuitQuiz, req.body);
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
-
-// GET /api/game/active
-gameRouter.get('/active', async (req, res) => {
-    try {
-        // Expecting user_id in query params
-        const { user_id } = req.query;
-        if (!user_id) {
-             return res.status(400).json({ error: "Missing user_id query parameter" });
+            const response = await grpcCall(grpcMethod, req.body);
+            res.json(response);
+        } catch (err) {
+            console.error(`Error in ${route.path}:`, err);
+            res.status(500).json(err);
         }
-        const response = await grpcCall(gameClient.GetActiveQuiz, { user_id });
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
-
-// POST /api/game/answer
-gameRouter.post('/answer', async (req, res) => {
-    try {
-        // Expecting { user_id, answers: [] } in body
-        const response = await grpcCall(gameClient.AnswerQuestions, req.body);
-        res.json(response);
-    } catch (err) {
-        res.status(500).json(err);
-    }
+    });
 });
 
 app.use('/api/game', gameRouter);
