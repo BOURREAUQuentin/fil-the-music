@@ -1,0 +1,180 @@
+type: collection.insomnia.rest/5.0
+name: FIL-the-music
+meta:
+  id: wrk_ad34223ccb564a5cab3e4a2c793fcfe0
+  created: 1765043395400
+  modified: 1765043395400
+  description: ""
+collection:
+  - url: localhost:50051
+    name: getQuizzes
+    meta:
+      id: greq_569b5599b7e24bebb686157d46a0bd22
+      created: 1765043897095
+      modified: 1766743963082
+      isPrivate: false
+      sortKey: -1765043897095
+      description: ""
+    body:
+      text: "{}"
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/GetQuizzes
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+  - url: localhost:50051
+    name: getSessions
+    meta:
+      id: greq_58e1b33702504d87856505e0b1bf7132
+      created: 1765656166679
+      modified: 1766743968489
+      isPrivate: false
+      sortKey: -1765656166679
+      description: ""
+    body:
+      text: "{}"
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/GetSessions
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+  - url: localhost:50051
+    name: joinQuiz
+    meta:
+      id: greq_4221be7d8e4c418db3359432b4cf188a
+      created: 1765657113273
+      modified: 1766744109055
+      isPrivate: false
+      sortKey: -1765350031887
+      description: ""
+    body:
+      text: |-
+        {
+        	"user_id": "1",
+        	"quiz_id": "694e5fa03cc30bc44acead18"
+        }
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/JoinQuiz
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+  - url: localhost:50051
+    name: quitQuiz
+    meta:
+      id: greq_1b00b3a77f0a42708457683ef0f93831
+      created: 1766740549018
+      modified: 1766743979825
+      isPrivate: false
+      sortKey: -1765196964491
+      description: ""
+    body:
+      text: |-
+        {
+        	"user_id": "1",
+        	"quiz_id": "694e522e8d115d2e3108eb9c"
+        }
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/QuitQuiz
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+  - url: localhost:50051
+    name: createQuiz
+    meta:
+      id: greq_eac898697e0b43588b83213c79881d1a
+      created: 1766741582482
+      modified: 1766743986247
+      isPrivate: false
+      sortKey: -1764385283065.5
+      description: ""
+    body:
+      text: |-
+        {
+        	"title": "new quiz",
+        	"type": "SIMPLE",
+        	"creator_id": "user id",
+        	"questions": [
+        				{
+        					"choices": [
+        						"Oui",
+        						"Non",
+        						"Peut-être",
+        						"Je ne sais pas"
+        					],
+        					"question_id": "q1",
+        					"text": "Question 1",
+        					"correct_answer_index": 0
+        				}
+        			]
+        }
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/CreateQuiz
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+  - url: localhost:50051
+    name: getMyActiveQuiz
+    meta:
+      id: greq_ece5cc31c5bc4dcda34a0ef829d19ed9
+      created: 1766743357869
+      modified: 1766743992594
+      isPrivate: false
+      sortKey: -1764385282965.5
+      description: ""
+    body:
+      text: |-
+        {
+        	"user_id": "1"
+        }
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/GetActiveQuiz
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+  - url: localhost:50051
+    name: answerQuestions
+    meta:
+      id: greq_c6d5694ba3c342c9a45fe383dcbd7d8e
+      created: 1766744015549
+      modified: 1766744134427
+      isPrivate: false
+      sortKey: -1764385282865.5
+      description: ""
+    body:
+      text: |-
+        {
+        	"user_id": "1",
+        	"answers": [0, 2]
+        }
+    protoFileId: pf_7e5fc83244924e4c87c9e32488165f22
+    protoMethodName: /user.v1.GameService/AnswerQuestions
+    reflectionApi:
+      enabled: false
+      url: https://buf.build
+      apiKey: ""
+      module: buf.build/connectrpc/eliza
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_38c3940b289ee28f63f606d2dc6c9e61dda394d9
+    created: 1765043395427
+    modified: 1765043395427
+environments:
+  name: Base Environment
+  meta:
+    id: env_38c3940b289ee28f63f606d2dc6c9e61dda394d9
+    created: 1765043395423
+    modified: 1765043395423
+    isPrivate: false

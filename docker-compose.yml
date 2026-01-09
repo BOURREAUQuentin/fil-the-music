@@ -28,3 +28,23 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: filthemusic
       ME_CONFIG_MONGODB_URL: mongodb://damien:filthemusic@mongo:27017/
       ME_CONFIG_BASICAUTH: false
+
+  game:
+    build:
+      context: ./game
+      dockerfile: Dockerfile
+    container_name: game_service
+    ports:
+      - "50051:50051"
+    environment:
+      - MONGO_URI=mongodb://root:example@mongodb:27017/game?authSource=admin
+    depends_on:
+      - mongodb
+
+  gateway:
+    build: ./gateway
+    container_name: api_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - game

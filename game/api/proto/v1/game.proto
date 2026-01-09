@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package user.v1;
+option go_package = "github.com/BOURREAUQuentin/game/api/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+
+service GameService {
+  rpc GetQuizzes (GetQuizzesRequest) returns (GetQuizzesResponse);
+  rpc GetSessions (GetSessionsRequest) returns (GetSessionsResponse);
+  rpc JoinQuiz (JoinQuizRequest) returns (JoinQuizResponse);
+  rpc QuitQuiz (QuitQuizRequest) returns (QuitQuizResponse);
+  rpc CreateQuiz (CreateQuizRequest) returns (CreateQuizResponse);
+  rpc GetActiveQuiz (GetActiveQuizRequest) returns (GetActiveQuizResponse);
+  rpc AnswerQuestions (AnswerQuestionsRequest) returns (AnswerQuestionsResponse);
+}
+
+message GetQuizzesRequest {
+
+}
+
+message GetQuizzesResponse {
+  repeated Quiz quizzes = 1;
+}
+
+message AnswerQuestionsRequest {
+  string user_id = 1;
+  repeated int32 answers = 2;
+}
+
+message AnswerQuestionsResponse {
+  int32 score = 1;
+  repeated QuestionResult results = 2;
+}
+
+message QuestionResult {
+  string question_id = 1;
+  bool is_correct = 2;
+  int32 correct_answer_index = 3;
+  int32 user_answer_index = 4;
+}
+
+message GetActiveQuizRequest {
+  string user_id = 1;
+}
+
+message GetActiveQuizResponse {
+  Quiz quiz = 1;
+}
+
+message CreateQuizRequest {
+  string title = 1;
+  string type = 2;
+  string creator_id = 3;
+  repeated Question questions = 4;
+}
+
+message CreateQuizResponse {
+  Quiz quiz = 1;
+}
+
+message GetSessionsRequest {
+
+}
+
+message GetSessionsResponse {
+  repeated Session sessions = 1;
+}
+
+message JoinQuizRequest {
+  string user_id = 1;
+  string quiz_id = 2;
+}
+
+message JoinQuizResponse {
+  Session session = 1;
+}
+
+message QuitQuizRequest {
+  string user_id = 1;
+  string quiz_id = 2;
+}
+
+message QuitQuizResponse {
+  bool success = 1;
+}
+
+message Session {
+  string id = 1;
+  string user_id = 2;
+  string quiz_id = 3;
+  google.protobuf.Timestamp joined_at = 4;
+  google.protobuf.Timestamp last_activity = 5;
+}
+
+message Quiz {
+  string id = 1;
+  string title = 2;
+  string type = 3;       // 'simple', 'personalise', etc.
+  string creator_id = 4;
+  google.protobuf.Timestamp created_at = 5;
+  repeated Question questions = 6;
+}
+
+message Question {
+  string question_id = 1;
+  string text = 2;
+  repeated string choices = 3;
+  int32 correct_answer_index = 4;
+}

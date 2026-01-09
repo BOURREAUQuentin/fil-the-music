@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Quiz Golang",
+    "type": "simple",
+    "creator_id": "quentin-dev",
+    "created_at": { "$date": "2023-12-01T10:00:00Z" },
+    "questions": [
+      {
+        "question_id": "q1",
+        "text": "Go est-il compilé ?",
+        "choices": [
+          "Oui",
+          "Non",
+          "Peut-être",
+          "Je ne sais pas"
+        ],
+        "correct_answer_index": 0
+      },
+      {
+        "question_id": "q2",
+        "text": "Que signifie gRPC ?",
+        "choices": [
+          "Google Remote Procedure Call",
+          "gRPC Remote Procedure Call",
+          "Global Remote Procedure Call",
+          "General Remote Procedure Call"
+        ],
+        "correct_answer_index": 1
+      }
+    ]
+  }
+]
