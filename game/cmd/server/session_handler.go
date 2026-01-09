@@ -1,0 +1,210 @@
+package server
+
+import (
+	"context"
+	"time"
+
+	pb "github.com/BOURREAUQuentin/game/api/proto/v1"
+	"github.com/BOURREAUQuentin/game/internal/core/domain"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func (s *GameServer) JoinQuiz(ctx context.Context, req *pb.JoinQuizRequest) (*pb.JoinQuizResponse, error) {
+	// Validate quiz_id format
+	_, err := primitive.ObjectIDFromHex(req.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to parse quiz ID: %v", err)
+	}
+
+	user, err := s.UserRepo.GetUserById(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
+	}
+
+	// Verify quiz_id existence
+	quiz, err := s.QuizRepo.FindQuizByID(ctx, req.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
+	}
+
+	if quiz == nil {
+		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", req.QuizId)
+	}
+	if user == nil {
+		return nil, status.Errorf(codes.NotFound, "user with ID %s not found", req.UserId)
+	}
+
+	// Check if user already has an active session
+	existingSession, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to check existing session: %v", err)
+	}
+	if existingSession != nil {
+		return nil, status.Errorf(codes.AlreadyExists, "user %s already has an active session", req.UserId)
+	}
+
+	now := time.Now()
+	session := &domain.Session{
+		UserId:       req.UserId,
+		QuizId:       req.QuizId,
+		JoinedAt:     now,
+		LastActivity: now,
+	}
+
+	err = s.SessionRepo.CreateSession(ctx, session)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
+	}
+
+	return &pb.JoinQuizResponse{
+		Session: &pb.Session{
+			Id:           session.ID,
+			UserId:       session.UserId,
+			QuizId:       session.QuizId,
+			JoinedAt:     timestamppb.New(session.JoinedAt),
+			LastActivity: timestamppb.New(session.LastActivity),
+		},
+	}, nil
+}
+
+func (s *GameServer) QuitQuiz(ctx context.Context, req *pb.QuitQuizRequest) (*pb.QuitQuizResponse, error) {
+	// Validate quiz_id format
+	_, err := primitive.ObjectIDFromHex(req.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to parse quiz ID: %v", err)
+	}
+
+	user, err := s.UserRepo.GetUserById(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
+	}
+
+	// Verify quiz_id existence
+	quiz, err := s.QuizRepo.FindQuizByID(ctx, req.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
+	}
+
+	if quiz == nil {
+		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", req.QuizId)
+	}
+	if user == nil {
+		return nil, status.Errorf(codes.NotFound, "user with ID %s not found", req.UserId)
+	}
+
+	session := &domain.Session{
+		UserId: req.UserId,
+		QuizId: req.QuizId,
+	}
+
+	err = s.SessionRepo.DeleteSession(ctx, session)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to delete session: %v", err)
+	}
+
+	return &pb.QuitQuizResponse{
+		Success: true,
+	}, nil
+}
+
+func (s *GameServer) GetSessions(ctx context.Context, req *pb.GetSessionsRequest) (*pb.GetSessionsResponse, error) {
+	sessionsDB, err := s.SessionRepo.GetSessions(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Format datas
+	var pbSessions []*pb.Session
+	for _, session := range sessionsDB {
+		pbSessions = append(pbSessions, &pb.Session{
+			Id:           session.ID,
+			UserId:       session.UserId,
+			QuizId:       session.QuizId,
+			JoinedAt:     timestamppb.New(session.JoinedAt),
+			LastActivity: timestamppb.New(session.LastActivity),
+		})
+	}
+
+	return &pb.GetSessionsResponse{Sessions: pbSessions}, nil
+}
+
+func (s *GameServer) GetActiveQuiz(ctx context.Context, req *pb.GetActiveQuizRequest) (*pb.GetActiveQuizResponse, error) {
+	session, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve session: %v", err)
+	}
+	if session == nil {
+		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", req.UserId)
+	}
+
+	quiz, err := s.QuizRepo.FindQuizByID(ctx, session.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
+	}
+	if quiz == nil {
+		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", session.QuizId)
+	}
+
+	return &pb.GetActiveQuizResponse{
+		Quiz: &pb.Quiz{
+			Id:        quiz.ID,
+			Title:     quiz.Title,
+			Type:      quiz.Type,
+			CreatorId: quiz.CreatorID,
+			CreatedAt: timestamppb.New(quiz.CreatedAt),
+			Questions: mapQuestionsToPb(quiz.Questions),
+		},
+	}, nil
+}
+
+func (s *GameServer) AnswerQuestions(ctx context.Context, req *pb.AnswerQuestionsRequest) (*pb.AnswerQuestionsResponse, error) {
+	session, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve session: %v", err)
+	}
+	if session == nil {
+		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", req.UserId)
+	}
+
+	quiz, err := s.QuizRepo.FindQuizByID(ctx, session.QuizId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
+	}
+	if quiz == nil {
+		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", session.QuizId)
+	}
+
+	if len(req.Answers) != len(quiz.Questions) {
+		return nil, status.Errorf(codes.InvalidArgument, "number of answers (%d) does not match number of questions (%d)", len(req.Answers), len(quiz.Questions))
+	}
+
+	var score int32
+	var results []*pb.QuestionResult
+
+	for i, question := range quiz.Questions {
+		userAnswerIdx := req.Answers[i]
+		isCorrect := userAnswerIdx == question.CorrectAnswerIdx
+
+		if isCorrect {
+			score++
+		}
+
+		results = append(results, &pb.QuestionResult{
+			QuestionId:         question.QuestionID,
+			IsCorrect:          isCorrect,
+			CorrectAnswerIndex: question.CorrectAnswerIdx,
+			UserAnswerIndex:    userAnswerIdx,
+		})
+	}
+
+	// Delete session after quiz completion
+	s.SessionRepo.DeleteSession(ctx, session)
+
+	return &pb.AnswerQuestionsResponse{
+		Score:   score,
+		Results: results,
+	}, nil
+}

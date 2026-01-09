@@ -1,0 +1,19 @@
+package domain
+
+import "time"
+
+type Quiz struct {
+	ID        string
+	Title     string
+	Type      string
+	CreatorID string
+	CreatedAt time.Time
+	Questions []Question
+}
+
+type Question struct {
+	QuestionID       string
+	Text             string
+	Choices          []string
+	CorrectAnswerIdx int32
+}

@@ -1,1 +1,22 @@
-# a faire
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  game:
+    build:
+      context: ./game
+      dockerfile: Dockerfile
+    container_name: game_service
+    ports:
+      - "50051:50051"
+    environment:
+      - MONGO_URI=mongodb://root:example@mongodb:27017/game?authSource=admin
+    depends_on:
+      - mongodb
