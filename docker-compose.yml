@@ -5,6 +5,8 @@ services:
       dockerfile: catalog/Dockerfile
     ports: 
     - 3200:3200
+    environment:
+      - MONGO_URI=mongodb://root:password@mongo:27017/catalog_db?authSource=admin
 
   mongo:
     image: mongo
@@ -12,9 +14,8 @@ services:
     ports: 
     - 27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: damien
-      MONGO_INITDB_ROOT_PASSWORD: filthemusic
-      MONGO_INITDB_DATABASE: catalog_db
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
     - ./catalog/import/init-data.js:/docker-entrypoint-initdb.d/init-data.js:ro
 
@@ -24,9 +25,9 @@ services:
     ports:
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: damien
-      ME_CONFIG_MONGODB_ADMINPASSWORD: filthemusic
-      ME_CONFIG_MONGODB_URL: mongodb://damien:filthemusic@mongo:27017/
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
       ME_CONFIG_BASICAUTH: false
 
   game:
@@ -37,9 +38,9 @@ services:
     ports:
       - "50051:50051"
     environment:
-      - MONGO_URI=mongodb://root:example@mongodb:27017/game?authSource=admin
+      - MONGO_URI=mongodb://root:password@mongo:27017/game_db?authSource=admin
     depends_on:
-      - mongodb
+      - mongo
 
   gateway:
     build: ./gateway

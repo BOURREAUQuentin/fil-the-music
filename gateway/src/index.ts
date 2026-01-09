@@ -29,7 +29,7 @@ app.use(express.json());
 
 const SERVICES = {
     USER: process.env.USER_SERVICE_URL || 'http://user_service:3001',
-    CATALOGUE: process.env.CATALOGUE_SERVICE_URL || 'http://catalogue_service:4000',
+    CATALOGUE: process.env.CATALOGUE_SERVICE_URL || 'http://catalog:3200',
     INGESTION: process.env.INGESTION_SERVICE_URL || 'http://ingestion_service:5000',
     GAME_GRPC: process.env.GAME_SERVICE_URL || 'game_service:50051'
 };
@@ -39,12 +39,6 @@ app.use('/api/users', createProxyMiddleware({
     target: SERVICES.USER,
     changeOrigin: true,
     pathRewrite: { '^/api/users': '' },
-}));
-
-// Configure CATALOGUE service
-app.use('/graphql', createProxyMiddleware({
-    target: SERVICES.CATALOGUE,
-    changeOrigin: true,
 }));
 
 // Configure GAME service

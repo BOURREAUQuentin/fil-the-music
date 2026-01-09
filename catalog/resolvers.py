@@ -2,9 +2,11 @@ import json
 from graphql import GraphQLError
 import requests, time
 from pymongo import MongoClient
+import os
 
-client = MongoClient("mongodb://damien:filthemusic@mongo:27017/")
-database = client["catalog_db"]
+mongo_uri = os.environ.get('MONGO_URI', "mongodb://root:password@mongo:27017/catalog_db?authSource=admin")
+client = MongoClient(mongo_uri)
+database = client.get_default_database()
 tracks = database["tracks"]
 artists = database["artists"]
 
