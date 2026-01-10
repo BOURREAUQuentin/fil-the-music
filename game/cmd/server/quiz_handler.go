@@ -76,6 +76,68 @@ func (s *GameServer) CreateQuiz(ctx context.Context, req *pb.CreateQuizRequest) 
 	}, nil
 }
 
+func (s *GameServer) StartRandomQuiz(ctx context.Context, req *pb.StartRandomQuizRequest) (*pb.StartQuizResponse, error) {
+	questions, err := s.CatalogRepo.GetRandomQuestions(10)
+	if err != nil {
+		return nil, err
+	}
+
+	quiz := &domain.Quiz{
+		Title:     "Quiz Aléatoire",
+		Type:      "random",
+		CreatorID: req.UserId,
+		CreatedAt: time.Now(),
+		Questions: questions,
+	}
+
+	err = s.QuizRepo.CreateQuiz(ctx, quiz)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.StartQuizResponse{
+		Quiz: &pb.Quiz{
+			Id:        quiz.ID,
+			Title:     quiz.Title,
+			Type:      quiz.Type,
+			CreatorId: quiz.CreatorID,
+			CreatedAt: timestamppb.New(quiz.CreatedAt),
+			Questions: mapQuestionsToPb(quiz.Questions),
+		},
+	}, nil
+}
+
+func (s *GameServer) StartGenreQuiz(ctx context.Context, req *pb.StartGenreQuizRequest) (*pb.StartQuizResponse, error) {
+	questions, err := s.CatalogRepo.GetQuestionsByGenre(req.Genre, 10)
+	if err != nil {
+		return nil, err
+	}
+
+	quiz := &domain.Quiz{
+		Title:     "Quiz " + req.Genre,
+		Type:      "genre",
+		CreatorID: req.UserId,
+		CreatedAt: time.Now(),
+		Questions: questions,
+	}
+
+	err = s.QuizRepo.CreateQuiz(ctx, quiz)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.StartQuizResponse{
+		Quiz: &pb.Quiz{
+			Id:        quiz.ID,
+			Title:     quiz.Title,
+			Type:      quiz.Type,
+			CreatorId: quiz.CreatorID,
+			CreatedAt: timestamppb.New(quiz.CreatedAt),
+			Questions: mapQuestionsToPb(quiz.Questions),
+		},
+	}, nil
+}
+
 // UTILS
 
 func mapQuestionsToPb(qs []domain.Question) []*pb.Question {

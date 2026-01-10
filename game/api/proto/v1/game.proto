@@ -13,10 +13,24 @@ service GameService {
   rpc CreateQuiz (CreateQuizRequest) returns (CreateQuizResponse);
   rpc GetActiveQuiz (GetActiveQuizRequest) returns (GetActiveQuizResponse);
   rpc AnswerQuestions (AnswerQuestionsRequest) returns (AnswerQuestionsResponse);
+  rpc StartRandomQuiz (StartRandomQuizRequest) returns (StartQuizResponse);
+  rpc StartGenreQuiz (StartGenreQuizRequest) returns (StartQuizResponse);
+}
+
+message StartRandomQuizRequest {
+  string user_id = 1;
+}
+
+message StartGenreQuizRequest {
+  string user_id = 1;
+  string genre = 2;
+}
+
+message StartQuizResponse {
+  Quiz quiz = 1;
 }
 
 message GetQuizzesRequest {
-
 }
 
 message GetQuizzesResponse {

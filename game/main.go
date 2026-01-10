@@ -10,6 +10,7 @@ import (
 
 	pb "github.com/BOURREAUQuentin/game/api/proto/v1"
 	"github.com/BOURREAUQuentin/game/cmd/server"
+	"github.com/BOURREAUQuentin/game/internal/adapters/catalog"
 	"github.com/BOURREAUQuentin/game/internal/adapters/repository"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,6 +24,11 @@ func main() {
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
 		mongoURI = "mongodb://root:example@localhost:27017/"
+	}
+
+	catalogURL := os.Getenv("CATALOG_URL")
+	if catalogURL == "" {
+		catalogURL = "http://catalog:3200/graphql"
 	}
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
@@ -39,8 +45,9 @@ func main() {
 	quizRepo := repository.NewMongoQuizRepository(db)
 	sessionRepo := repository.NewMongoSessionRepository(db)
 	userRepo := repository.NewUserRepository()
+	catalogRepo := catalog.NewGraphQLCatalogRepository(catalogURL)
 
-	gameServer := server.NewGameServer(quizRepo, sessionRepo, userRepo)
+	gameServer := server.NewGameServer(quizRepo, sessionRepo, userRepo, catalogRepo)
 
 	// Launch server
 	lis, err := net.Listen("tcp", ":50051")
