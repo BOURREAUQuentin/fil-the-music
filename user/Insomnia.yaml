@@ -1,0 +1,624 @@
+_type: export
+__export_format: 4
+__export_date: 2026-01-10T00:00:00.000Z
+__export_source: insomnia.desktop.app:v2023.5.8
+resources:
+  - _id: env_base
+    _type: environment
+    name: Base Environment
+    data:
+      base_url: http://localhost:3201
+      admin_token: ""
+      user_token: ""
+      user_id: ""
+      admin_id: ""
+    dataPropertyOrder:
+      "&": ["base_url", "admin_token", "user_token", "user_id", "admin_id"]
+
+  # ==========================================
+  # FOLDER: AUTH
+  # ==========================================
+
+  - _id: folder_auth
+    _type: request_group
+    name: Auth
+    environment: {}
+
+  - _id: req_register_user
+    parentId: folder_auth
+    _type: request
+    name: Register User (Success)
+    method: POST
+    url: "{{ _.base_url }}/auth/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "testuser",
+          "email": "testuser@example.com",
+          "password": "Password123!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: |
+      ✅ Success - Create a normal user
+      
+      After execution, copy:
+      - response.user.id → user_id (in environment)
+      - response.token → user_token (in environment)
+
+  - _id: req_register_admin
+    parentId: folder_auth
+    _type: request
+    name: Register Admin (Success)
+    method: POST
+    url: "{{ _.base_url }}/auth/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "adminuser",
+          "email": "admin@example.com",
+          "password": "AdminPass123!",
+          "role": "ADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: |
+      ✅ Success - Create an admin
+      
+      After execution, copy:
+      - response.user.id → admin_id
+      - response.token → admin_token
+
+  - _id: req_register_missing_fields
+    parentId: folder_auth
+    _type: request
+    name: Register (Error - Missing Fields)
+    method: POST
+    url: "{{ _.base_url }}/auth/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "testuser"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 400 - Missing required fields"
+
+  - _id: req_register_duplicate
+    parentId: folder_auth
+    _type: request
+    name: Register (Error - Duplicate Email)
+    method: POST
+    url: "{{ _.base_url }}/auth/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "anotheruser",
+          "email": "testuser@example.com",
+          "password": "Password123!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 409 - Email already in use"
+
+  - _id: req_login_user
+    parentId: folder_auth
+    _type: request
+    name: Login User (Success)
+    method: POST
+    url: "{{ _.base_url }}/auth/login"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "email": "testuser@example.com",
+          "password": "Password123!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: |
+      ✅ Success - User login
+      
+      Get token from response if needed
+
+  - _id: req_login_admin
+    parentId: folder_auth
+    _type: request
+    name: Login Admin (Success)
+    method: POST
+    url: "{{ _.base_url }}/auth/login"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "email": "admin@example.com",
+          "password": "AdminPass123!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "✅ Success - Admin login"
+
+  - _id: req_login_wrong_password
+    parentId: folder_auth
+    _type: request
+    name: Login (Error - Wrong Password)
+    method: POST
+    url: "{{ _.base_url }}/auth/login"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "email": "testuser@example.com",
+          "password": "WrongPassword!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 401 - Incorrect password"
+
+  - _id: req_login_user_not_found
+    parentId: folder_auth
+    _type: request
+    name: Login (Error - User Not Found)
+    method: POST
+    url: "{{ _.base_url }}/auth/login"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "email": "nonexistent@example.com",
+          "password": "Password123!"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 401 - User does not exist"
+
+  - _id: req_login_missing_fields
+    parentId: folder_auth
+    _type: request
+    name: Login (Error - Missing Fields)
+    method: POST
+    url: "{{ _.base_url }}/auth/login"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "email": "testuser@example.com"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 400 - Missing required fields"
+
+  # ==========================================
+  # FOLDER: USERS
+  # ==========================================
+
+  - _id: folder_users
+    _type: request_group
+    name: Users
+    environment: {}
+
+  # --- Get User Infos ---
+
+  - _id: subfolder_get_infos
+    parentId: folder_users
+    _type: request_group
+    name: Get User Infos
+    environment: {}
+
+  - _id: req_get_user_infos_success
+    parentId: subfolder_get_infos
+    _type: request
+    name: Get User Infos (Success)
+    method: GET
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    headers:
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - Get user information"
+
+  - _id: req_get_user_infos_no_token
+    parentId: subfolder_get_infos
+    _type: request
+    name: Get User Infos (Error - No Token)
+    method: GET
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    description: "❌ Error 401 - Missing token"
+
+  - _id: req_get_user_infos_invalid_token
+    parentId: subfolder_get_infos
+    _type: request
+    name: Get User Infos (Error - Invalid Token)
+    method: GET
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    headers:
+      - name: Authorization
+        value: "Bearer invalid_token_here"
+    description: "❌ Error 401/403 - Invalid token"
+
+  - _id: req_get_user_infos_not_found
+    parentId: subfolder_get_infos
+    _type: request
+    name: Get User Infos (Error - Not Found)
+    method: GET
+    url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011/infos"
+    headers:
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 404 - User does not exist"
+
+  # --- Update User Infos ---
+
+  - _id: subfolder_update_infos
+    parentId: folder_users
+    _type: request_group
+    name: Update User Infos
+    environment: {}
+
+  - _id: req_update_user_infos_success
+    parentId: subfolder_update_infos
+    _type: request
+    name: Update User Infos (Success - Full)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "updatedusername",
+          "favorite_artists": ["Artist 1", "Artist 2", "Artist 3"]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - Update username and favorite artists"
+
+  - _id: req_update_user_infos_username_only
+    parentId: subfolder_update_infos
+    _type: request
+    name: Update User Infos (Success - Username Only)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "newusername"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - Update username only"
+
+  - _id: req_update_user_infos_artists_only
+    parentId: subfolder_update_infos
+    _type: request
+    name: Update User Infos (Success - Artists Only)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "favorite_artists": ["New Artist 1", "New Artist 2"]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - Update favorite artists only"
+
+  - _id: req_update_user_infos_unauthorized
+    parentId: subfolder_update_infos
+    _type: request
+    name: Update User Infos (Error - Unauthorized)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.admin_id }}/infos"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "hacker"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 403 - Cannot update another user's info"
+
+  - _id: req_update_user_infos_no_token
+    parentId: subfolder_update_infos
+    _type: request
+    name: Update User Infos (Error - No Token)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/infos"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "newusername"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 401 - Missing authentication token"
+
+  - _id: req_update_user_infos_not_found
+    parentId: subfolder_update_infos
+    _type: request
+    name: Update User Infos (Error - Not Found)
+    method: PUT
+    url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011/infos"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "newusername"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 404 - User does not exist"
+
+  # --- Update Role (Admin Only) ---
+
+  - _id: subfolder_update_role
+    parentId: folder_users
+    _type: request_group
+    name: Update Role (Admin Only)
+    environment: {}
+
+  - _id: req_update_role_success
+    parentId: subfolder_update_role
+    _type: request
+    name: Update Role (Success - Promote to Admin)
+    method: PUT
+    url: "{{ _.base_url }}/users/role"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "userId": "{{ _.user_id }}",
+          "role": "ADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: "✅ Success - Admin promotes user to admin role"
+
+  - _id: req_update_role_to_user
+    parentId: subfolder_update_role
+    _type: request
+    name: Update Role (Success - Demote to User)
+    method: PUT
+    url: "{{ _.base_url }}/users/role"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "userId": "{{ _.user_id }}",
+          "role": "USER"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: "✅ Success - Admin demotes user to normal role"
+
+  - _id: req_update_role_forbidden
+    parentId: subfolder_update_role
+    _type: request
+    name: Update Role (Error - Not Admin)
+    method: PUT
+    url: "{{ _.base_url }}/users/role"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "userId": "{{ _.admin_id }}",
+          "role": "USER"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 403 - Only admins can change roles"
+
+  - _id: req_update_role_invalid
+    parentId: subfolder_update_role
+    _type: request
+    name: Update Role (Error - Invalid Role)
+    method: PUT
+    url: "{{ _.base_url }}/users/role"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "userId": "{{ _.user_id }}",
+          "role": "SUPERADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: "❌ Error 400 - Invalid role (only ADMIN or USER allowed)"
+
+  - _id: req_update_role_user_not_found
+    parentId: subfolder_update_role
+    _type: request
+    name: Update Role (Error - User Not Found)
+    method: PUT
+    url: "{{ _.base_url }}/users/role"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "userId": "507f1f77bcf86cd799439011",
+          "role": "ADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: "❌ Error 404 - Target user does not exist"
+
+  # --- Update Stats ---
+
+  - _id: subfolder_update_stats
+    parentId: folder_users
+    _type: request_group
+    name: Update Stats
+    environment: {}
+
+  - _id: req_update_stats_success
+    parentId: subfolder_update_stats
+    _type: request
+    name: Update Stats (Success)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/stats"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "total_games_played": 10,
+          "total_score_accumulated": 8500,
+          "average_score": 850
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - Update user statistics"
+
+  - _id: req_update_stats_increment
+    parentId: subfolder_update_stats
+    _type: request
+    name: Update Stats (Success - After Game)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/stats"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "total_games_played": 11,
+          "total_score_accumulated": 9450,
+          "average_score": 859
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - Increment stats after playing a game"
+
+  - _id: req_update_stats_no_token
+    parentId: subfolder_update_stats
+    _type: request
+    name: Update Stats (Error - No Token)
+    method: PUT
+    url: "{{ _.base_url }}/users/{{ _.user_id }}/stats"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "total_games_played": 100
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    description: "❌ Error 401 - Missing authentication token"
+
+  - _id: req_update_stats_user_not_found
+    parentId: subfolder_update_stats
+    _type: request
+    name: Update Stats (Error - User Not Found)
+    method: PUT
+    url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011/stats"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "total_games_played": 5
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 404 - User does not exist"
+
+  # --- Delete User ---
+
+  - _id: subfolder_delete_user
+    parentId: folder_users
+    _type: request_group
+    name: Delete User
+    environment: {}
+
+  - _id: req_delete_user_success
+    parentId: subfolder_delete_user
+    _type: request
+    name: Delete User (Success)
+    method: DELETE
+    url: "{{ _.base_url }}/users/{{ _.user_id }}"
+    headers:
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "✅ Success - User deletes their own account"
+
+  - _id: req_delete_user_unauthorized
+    parentId: subfolder_delete_user
+    _type: request
+    name: Delete User (Error - Unauthorized)
+    method: DELETE
+    url: "{{ _.base_url }}/users/{{ _.admin_id }}"
+    headers:
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 403 - Cannot delete another user's account"
+
+  - _id: req_delete_user_no_token
+    parentId: subfolder_delete_user
+    _type: request
+    name: Delete User (Error - No Token)
+    method: DELETE
+    url: "{{ _.base_url }}/users/{{ _.user_id }}"
+    description: "❌ Error 401 - Missing authentication token"
+
+  - _id: req_delete_user_not_found
+    parentId: subfolder_delete_user
+    _type: request
+    name: Delete User (Error - Not Found)
+    method: DELETE
+    url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011"
+    headers:
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 404 - User does not exist"

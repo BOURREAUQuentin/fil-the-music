@@ -11,6 +11,7 @@ router.get('/:id/infos', authMiddleware, async (req: AuthRequest, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
         res.json({
             id: user._id,
             username: user.username,
@@ -59,7 +60,7 @@ router.put('/:id/infos', authMiddleware, async (req: AuthRequest, res) => {
     }
 });
 
-// PUT /users/roles (admin only)
+// PUT /users/role (admin only)
 router.put('/role', authMiddleware, async (req: AuthRequest, res: Response) => {
     try {
         const currentUser = await User.findById(req.user?.id);

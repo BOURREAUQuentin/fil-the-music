@@ -1,30 +1,30 @@
 import { Router, Response, Request } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from "jsonwebtoken";
-import {User} from "./model/User";
+import jwt from 'jsonwebtoken';
+import { User } from './model/User';
 
 const authRouter = Router();
 
-// POST /auth/register - Inscription
+// POST /auth/register - Registration
 authRouter.post('/auth/register', async (req: Request, res: Response) => {
     try {
         const { username, email, password, role } = req.body;
 
         // Validation
         if (!username || !email || !password) {
-            return res.status(400).json({ error: 'Tous les champs sont requis' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
-        // Vérifier si l'utilisateur existe déjà
+        // Check if user already exists
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
-            return res.status(409).json({ error: 'Email ou username déjà utilisé' });
+            return res.status(409).json({ error: 'Email or username already in use' });
         }
 
-        // Hash du mot de passe
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Créer l'utilisateur
+        // Create user
         const newUser = new User({
             username,
             email,
@@ -40,7 +40,7 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
 
         await newUser.save();
 
-        // Générer le token JWT
+        // Generate JWT token
         const token = jwt.sign(
             { id: newUser._id, role: newUser.role },
             process.env.JWT_SECRET || 'secret',
@@ -48,7 +48,7 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
         );
 
         res.status(201).json({
-            message: 'Utilisateur créé avec succès',
+            message: 'User successfully created',
             user: {
                 id: newUser._id,
                 username: newUser.username,
@@ -58,33 +58,33 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
             token
         });
     } catch (error) {
-        console.error('Erreur lors de l\'inscription:', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        console.error('Error during registration:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
-// POST /auth/login - Connexion
+// POST /auth/login - Login
 authRouter.post('/auth/login', async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email et mot de passe requis' });
+            return res.status(400).json({ error: 'Email and password are required' });
         }
 
-        // Trouver l'utilisateur
+        // Find user
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        // Vérifier le mot de passe
+        // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        // Générer le token JWT
+        // Generate JWT token
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_SECRET || 'secret',
@@ -92,7 +92,7 @@ authRouter.post('/auth/login', async (req: Request, res: Response) => {
         );
 
         res.json({
-            message: 'Connexion réussie',
+            message: 'Login successful',
             user: {
                 id: user._id,
                 username: user.username,
@@ -104,8 +104,8 @@ authRouter.post('/auth/login', async (req: Request, res: Response) => {
             token
         });
     } catch (error) {
-        console.error('Erreur lors de la connexion:', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
