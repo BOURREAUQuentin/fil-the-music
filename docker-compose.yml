@@ -64,3 +64,15 @@ services:
       - "8080:8080"
     depends_on:
       - game
+
+  ingestion:
+    build: 
+      context: ./ingestion
+      dockerfile: Dockerfile
+    container_name: ingestion_service
+    env_file:
+      - ./ingestion/.env
+    environment:
+      - CATALOG_URL=http://catalog:3200/graphql
+    depends_on:
+      - catalog
