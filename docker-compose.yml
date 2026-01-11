@@ -17,7 +17,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
-    - ./catalog/import/init-data.js:/docker-entrypoint-initdb.d/init-data.js:ro
+    - ./import/init-catalog.js:/docker-entrypoint-initdb.d/init-catalog.js:ro
+    - ./import/init-user.js:/docker-entrypoint-initdb.d/init-user.js:ro
 
   mongo-express:
     image: mongo-express
@@ -29,6 +30,20 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
       ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
       ME_CONFIG_BASICAUTH: false
+
+  user:
+    build:
+      context: user
+      dockerfile: Dockerfile
+    container_name: user_service
+    ports:
+      - "3201:3201"
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://root:password@mongo:27017/user_db?authSource=admin
+    depends_on:
+      - mongo
 
   game:
     build:
