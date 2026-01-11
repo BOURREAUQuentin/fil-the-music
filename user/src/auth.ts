@@ -5,6 +5,12 @@ import { User } from './model/User';
 
 const authRouter = Router();
 
+// Verify the secret at loading of the file
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in the .env file');
+}
+
 // POST /auth/register - Registration
 authRouter.post('/auth/register', async (req: Request, res: Response) => {
     try {
@@ -43,7 +49,7 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
         // Generate JWT token
         const token = jwt.sign(
             { id: newUser._id, role: newUser.role },
-            process.env.JWT_SECRET || 'secret',
+            JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -87,7 +93,7 @@ authRouter.post('/auth/login', async (req: Request, res: Response) => {
         // Generate JWT token
         const token = jwt.sign(
             { id: user._id, role: user.role },
-            process.env.JWT_SECRET || 'secret',
+            JWT_SECRET,
             { expiresIn: '7d' }
         );
 

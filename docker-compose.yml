@@ -38,6 +38,8 @@ services:
     container_name: user_service
     ports:
       - "3201:3201"
+    env_file:
+      - .env
     environment:
       - MONGO_URI=mongodb://root:password@mongo:27017/user_db?authSource=admin
     depends_on:

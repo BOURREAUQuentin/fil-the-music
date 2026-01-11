@@ -6,6 +6,12 @@ export interface AuthRequest extends Request {
     user?: { id: string; role: string };
 }
 
+// Verify the secret at loading of the file
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in the .env file');
+}
+
 export const authMiddleware = async (
     req: AuthRequest,
     res: Response,
@@ -20,7 +26,7 @@ export const authMiddleware = async (
 
         const decoded = jwt.verify(
             token,
-            process.env.JWT_SECRET || 'secret'
+            JWT_SECRET
         ) as { id: string; role: string };
 
         req.user = decoded;
