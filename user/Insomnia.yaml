@@ -435,25 +435,6 @@ resources:
         value: application/json
     description: "❌ Error 401 - Missing authentication token"
 
-  - _id: req_update_user_infos_not_found
-    parentId: subfolder_update_infos
-    _type: request
-    name: Update User Infos (Unauthorized)
-    method: PUT
-    url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011/infos"
-    body:
-      mimeType: application/json
-      text: |
-        {
-          "username": "newusername"
-        }
-    headers:
-      - name: Content-Type
-        value: application/json
-      - name: Authorization
-        value: "Bearer {{ _.user_token }}"
-    description: "❌ Error 404 - User does not exist and it is different from requester"
-
   # --- Update Role (Admin Only) ---
 
   - _id: subfolder_update_role
