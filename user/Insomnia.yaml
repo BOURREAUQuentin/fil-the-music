@@ -1,7 +1,8 @@
 _type: export
 __export_format: 4
-__export_date: 2026-01-10T00:00:00.000Z
+__export_date: 2026-01-11T00:00:00.000Z
 __export_source: insomnia.desktop.app:v2023.5.8
+name: FIL_The_Music
 resources:
   - _id: env_base
     _type: environment
@@ -43,35 +44,9 @@ resources:
         value: application/json
     description: |
       ✅ Success - Create a normal user
-      
       After execution, copy:
       - response.user.id → user_id (in environment)
       - response.token → user_token (in environment)
-
-  - _id: req_register_admin
-    parentId: folder_auth
-    _type: request
-    name: Register Admin (Success)
-    method: POST
-    url: "{{ _.base_url }}/auth/register"
-    body:
-      mimeType: application/json
-      text: |
-        {
-          "username": "adminuser",
-          "email": "admin@example.com",
-          "password": "AdminPass123!",
-          "role": "ADMIN"
-        }
-    headers:
-      - name: Content-Type
-        value: application/json
-    description: |
-      ✅ Success - Create an admin
-      
-      After execution, copy:
-      - response.user.id → admin_id
-      - response.token → admin_token
 
   - _id: req_register_missing_fields
     parentId: folder_auth
@@ -127,7 +102,6 @@ resources:
         value: application/json
     description: |
       ✅ Success - User login
-      
       Get token from response if needed
 
   - _id: req_login_admin
@@ -140,8 +114,8 @@ resources:
       mimeType: application/json
       text: |
         {
-          "email": "admin@example.com",
-          "password": "AdminPass123!"
+          "email": "admin@quizmusic.com",
+          "password": "admin123"
         }
     headers:
       - name: Content-Type
@@ -200,6 +174,106 @@ resources:
       - name: Content-Type
         value: application/json
     description: "❌ Error 400 - Missing required fields"
+
+  # ==========================================
+  # FOLDER: AUTH - ADMIN
+  # ==========================================
+
+  - _id: folder_auth_admin
+    _type: request_group
+    name: Auth Admin
+    environment: {}
+
+  - _id: req_admin_register_user
+    parentId: folder_auth_admin
+    _type: request
+    name: Admin Create User (Success)
+    method: POST
+    url: "{{ _.base_url }}/auth/admin/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "newuser",
+          "email": "newuser@example.com",
+          "password": "Password123!",
+          "role": "USER"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: |
+      ✅ Success - Admin creates a USER  
+      After execution:
+      - response.user.id → user_id
+
+  - _id: req_admin_register_admin
+    parentId: folder_auth_admin
+    _type: request
+    name: Admin Create Admin (Success)
+    method: POST
+    url: "{{ _.base_url }}/auth/admin/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "secondadmin",
+          "email": "secondadmin@example.com",
+          "password": "AdminPass123!",
+          "role": "ADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: "✅ Success - Admin creates another ADMIN"
+
+  - _id: req_admin_register_forbidden
+    parentId: folder_auth_admin
+    _type: request
+    name: Admin Create User/Admin (Forbidden for normal USER)
+    method: POST
+    url: "{{ _.base_url }}/auth/admin/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "hacker",
+          "email": "hacker@example.com",
+          "password": "12345678",
+          "role": "ADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.user_token }}"
+    description: "❌ Error 403 - Normal user cannot create USER or ADMIN"
+
+  - _id: req_admin_register_invalid_role
+    parentId: folder_auth_admin
+    _type: request
+    name: Admin Create User/Admin (Error - Invalid Role)
+    method: POST
+    url: "{{ _.base_url }}/auth/admin/register"
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "username": "invalidroleuser",
+          "email": "invalidrole@example.com",
+          "password": "Password123!",
+          "role": "SUPERADMIN"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: "Bearer {{ _.admin_token }}"
+    description: "❌ Error 400 - Only ADMIN or USER allowed"
 
   # ==========================================
   # FOLDER: USERS
@@ -364,7 +438,7 @@ resources:
   - _id: req_update_user_infos_not_found
     parentId: subfolder_update_infos
     _type: request
-    name: Update User Infos (Error - Not Found)
+    name: Update User Infos (Unauthorized)
     method: PUT
     url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011/infos"
     body:
@@ -378,7 +452,7 @@ resources:
         value: application/json
       - name: Authorization
         value: "Bearer {{ _.user_token }}"
-    description: "❌ Error 404 - User does not exist"
+    description: "❌ Error 404 - User does not exist and it is different from requester"
 
   # --- Update Role (Admin Only) ---
 
@@ -590,19 +664,19 @@ resources:
     url: "{{ _.base_url }}/users/{{ _.user_id }}"
     headers:
       - name: Authorization
-        value: "Bearer {{ _.user_token }}"
+        value: "Bearer {{ _.admin_token }}"
     description: "✅ Success - User deletes their own account"
 
   - _id: req_delete_user_unauthorized
     parentId: subfolder_delete_user
     _type: request
-    name: Delete User (Error - Unauthorized)
+    name: Delete User (Error - Not Admin)
     method: DELETE
     url: "{{ _.base_url }}/users/{{ _.admin_id }}"
     headers:
       - name: Authorization
         value: "Bearer {{ _.user_token }}"
-    description: "❌ Error 403 - Cannot delete another user's account"
+    description: "❌ Error 403 - Cannot delete another user's account without admin rights"
 
   - _id: req_delete_user_no_token
     parentId: subfolder_delete_user
@@ -615,10 +689,10 @@ resources:
   - _id: req_delete_user_not_found
     parentId: subfolder_delete_user
     _type: request
-    name: Delete User (Error - Not Found)
+    name: Delete User (Error - Unauthorized)
     method: DELETE
     url: "{{ _.base_url }}/users/507f1f77bcf86cd799439011"
     headers:
       - name: Authorization
-        value: "Bearer {{ _.user_token }}"
-    description: "❌ Error 404 - User does not exist"
+        value: "Bearer {{ _.admin_token }}"
+    description: "❌ Error 404 - Unauthorized deletion of non-existent user"

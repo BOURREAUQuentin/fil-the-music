@@ -2,6 +2,7 @@ import { Router, Response, Request } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from './model/User';
+import {adminMiddleware, authMiddleware, AuthRequest} from "~/middleware/auth";
 
 const authRouter = Router();
 
@@ -114,5 +115,64 @@ authRouter.post('/auth/login', async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+// POST /auth/admin/register - Create user with a specific role (ADMIN only)
+authRouter.post(
+    '/auth/admin/register',
+    authMiddleware,
+    adminMiddleware,
+    async (req: AuthRequest, res: Response) => {
+        try {
+            const {username, email, password, role} = req.body;
+
+            if (!username || !email || !password) {
+                return res.status(400).json({error: 'All fields are required'});
+            }
+
+            if (!['ADMIN', 'USER'].includes(role)) {
+                return res.status(400).json({error: 'Invalid role'});
+            }
+
+            const existingUser = await User.findOne({
+                $or: [{email}, {username}]
+            });
+            if (existingUser) {
+                return res
+                    .status(409)
+                    .json({error: 'Email or username already in use'});
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const newUser = new User({
+                username,
+                email,
+                password: hashedPassword,
+                role,
+                stats: {
+                    total_games_played: 0,
+                    total_score_accumulated: 0,
+                    average_score: 0
+                },
+                favorite_artists: []
+            });
+
+            await newUser.save();
+
+            res.status(201).json({
+                message: 'User created by admin',
+                user: {
+                    id: newUser._id,
+                    username: newUser.username,
+                    email: newUser.email,
+                    role: newUser.role
+                }
+            });
+        } catch (error) {
+            console.error('Admin user creation error:', error);
+            res.status(500).json({error: 'Server error'});
+        }
+    }
+);
 
 export default authRouter;

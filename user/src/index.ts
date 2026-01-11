@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import { User } from './model/User';
-import { authMiddleware, AuthRequest } from './middleware/auth';
+import { authMiddleware, adminMiddleware, AuthRequest } from './middleware/auth';
 
 const router = Router();
 
@@ -61,13 +61,8 @@ router.put('/:id/infos', authMiddleware, async (req: AuthRequest, res) => {
 });
 
 // PUT /users/role (admin only)
-router.put('/role', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.put('/role', authMiddleware, adminMiddleware, async (req: AuthRequest, res: Response) => {
     try {
-        const currentUser = await User.findById(req.user?.id);
-        if (!currentUser || currentUser.role !== 'ADMIN') {
-            return res.status(403).json({ message: 'Admin access required' });
-        }
-
         const { userId, role } = req.body;
 
         if (!['ADMIN', 'USER'].includes(role)) {
@@ -116,8 +111,8 @@ router.put('/:id/stats', authMiddleware, async (req: AuthRequest, res) => {
     }
 });
 
-// DELETE /users/:id
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
+// DELETE /users/:id (admin only)
+router.delete('/:id', authMiddleware, adminMiddleware, async (req: AuthRequest, res) => {
     try {
         if (req.user?.id !== req.params.id) {
             return res.status(403).json({ message: 'Unauthorized' });
