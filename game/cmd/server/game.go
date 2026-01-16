@@ -10,12 +10,14 @@ type GameServer struct {
 	QuizRepo    ports.QuizRepository
 	SessionRepo ports.SessionRepository
 	UserRepo    ports.UserRepository
+	CatalogRepo ports.CatalogRepository
 }
 
-func NewGameServer(quizRepo ports.QuizRepository, sessionRepo ports.SessionRepository, userRepo ports.UserRepository) *GameServer {
+func NewGameServer(quizRepo ports.QuizRepository, sessionRepo ports.SessionRepository, userRepo ports.UserRepository, catalogRepo ports.CatalogRepository) *GameServer {
 	return &GameServer{
 		QuizRepo:    quizRepo,
 		SessionRepo: sessionRepo,
 		UserRepo:    userRepo,
+		CatalogRepo: catalogRepo,
 	}
 }
