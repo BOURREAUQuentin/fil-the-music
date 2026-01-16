@@ -4,6 +4,7 @@ type Query {
     artist_json: [Artist]
     track_by_id(track_id: String!): Track
     artist_by_id(artist_id: String!): Artist
+    questions_by_artists(artists: [String]!, limit: Int!): [Track]
 }
 
 type Mutation {
@@ -17,7 +18,7 @@ type Mutation {
     update_track(track_id: String!, title: String, artist_id: String, album_name: String, release_date: String): Track
     update_artist(artist_id: String!, name: String, genres: [String!]): Artist
 
-    # Suppression (Ici j'ai mis [Track] pour correspondre à ton dernier code Python)
+    # Suppression
     remove_track(track_id: String!): String
     remove_artist(artist_id: String!): String
 }

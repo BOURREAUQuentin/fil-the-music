@@ -4,6 +4,19 @@ import { authMiddleware, adminMiddleware, AuthRequest } from './middleware/auth'
 
 const router = Router();
 
+// GET /users/:id/favorites
+router.get('/:id/favorites', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ favoriteArtists: user.favorite_artists || [] });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+});
+
 // GET /users/:id/infos
 router.get('/:id/infos', authMiddleware, async (req: AuthRequest, res) => {
     try {
@@ -33,17 +46,48 @@ router.put('/:id/infos', authMiddleware, async (req: AuthRequest, res) => {
             return res.status(403).json({ message: 'Unauthorized' });
         }
 
-        const { username, favorite_artists } = req.body;
+        const { username, favorite_artists, spotify_username } = req.body;
+        let newFavoriteArtists = favorite_artists;
+
+        // Si un username Spotify est fourni, on déclenche l'ingestion
+        if (spotify_username) {
+            try {
+                const ingestionUrl = process.env.INGESTION_URL || 'http://ingestion:8000';
+                console.log(`Triggering ingestion for spotify user: ${spotify_username}`);
+                
+                const response = await fetch(`${ingestionUrl}/ingest/user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier: spotify_username })
+                });
+
+                if (response.ok) {
+                    const data = await response.json() as { artists?: string[] };
+                    if (data.artists && Array.isArray(data.artists)) {
+                        console.log(`Ingestion success. Found artists: ${data.artists}`);
+                        if (data.artists.length > 0) {
+                            newFavoriteArtists = data.artists;
+                        }
+                    }
+                } else {
+                    console.error('Ingestion service failed', await response.text());
+                }
+            } catch (ingestError) {
+                console.error('Error contacting ingestion service:', ingestError);
+                // On ne bloque pas la mise à jour utilisateur si l'ingestion échoue
+            }
+        }
+
+        const updateData: any = {
+            updated_at: new Date()
+        };
+        if (username) updateData.username = username;
+        if (newFavoriteArtists) updateData.favorite_artists = newFavoriteArtists;
+        if (spotify_username) updateData.spotify_username = spotify_username;
 
         const user = await User.findByIdAndUpdate(
             req.params.id,
-            {
-                $set: {
-                    ...(username && { username }),
-                    ...(favorite_artists && { favorite_artists })
-                },
-                updated_at: new Date()
-            },
+            { $set: updateData },
             { new: true }
         ).select('-password');
 
@@ -53,9 +97,11 @@ router.put('/:id/infos', authMiddleware, async (req: AuthRequest, res) => {
 
         res.json({
             username: user.username,
-            favorite_artists: user.favorite_artists
+            favorite_artists: user.favorite_artists,
+            spotify_username: user.spotify_username
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 });

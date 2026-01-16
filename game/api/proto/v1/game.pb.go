@@ -22,6 +22,50 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type StartForYouQuizRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartForYouQuizRequest) Reset() {
+	*x = StartForYouQuizRequest{}
+	mi := &file_api_proto_v1_game_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartForYouQuizRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartForYouQuizRequest) ProtoMessage() {}
+
+func (x *StartForYouQuizRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_game_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartForYouQuizRequest.ProtoReflect.Descriptor instead.
+func (*StartForYouQuizRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *StartForYouQuizRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 type StartRandomQuizRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -31,7 +75,7 @@ type StartRandomQuizRequest struct {
 
 func (x *StartRandomQuizRequest) Reset() {
 	*x = StartRandomQuizRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[0]
+	mi := &file_api_proto_v1_game_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +87,7 @@ func (x *StartRandomQuizRequest) String() string {
 func (*StartRandomQuizRequest) ProtoMessage() {}
 
 func (x *StartRandomQuizRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[0]
+	mi := &file_api_proto_v1_game_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +100,7 @@ func (x *StartRandomQuizRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartRandomQuizRequest.ProtoReflect.Descriptor instead.
 func (*StartRandomQuizRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{0}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *StartRandomQuizRequest) GetUserId() string {
@@ -76,7 +120,7 @@ type StartGenreQuizRequest struct {
 
 func (x *StartGenreQuizRequest) Reset() {
 	*x = StartGenreQuizRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[1]
+	mi := &file_api_proto_v1_game_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -88,7 +132,7 @@ func (x *StartGenreQuizRequest) String() string {
 func (*StartGenreQuizRequest) ProtoMessage() {}
 
 func (x *StartGenreQuizRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[1]
+	mi := &file_api_proto_v1_game_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -101,7 +145,7 @@ func (x *StartGenreQuizRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartGenreQuizRequest.ProtoReflect.Descriptor instead.
 func (*StartGenreQuizRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{1}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *StartGenreQuizRequest) GetUserId() string {
@@ -127,7 +171,7 @@ type StartQuizResponse struct {
 
 func (x *StartQuizResponse) Reset() {
 	*x = StartQuizResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[2]
+	mi := &file_api_proto_v1_game_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -139,7 +183,7 @@ func (x *StartQuizResponse) String() string {
 func (*StartQuizResponse) ProtoMessage() {}
 
 func (x *StartQuizResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[2]
+	mi := &file_api_proto_v1_game_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,7 +196,7 @@ func (x *StartQuizResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartQuizResponse.ProtoReflect.Descriptor instead.
 func (*StartQuizResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{2}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *StartQuizResponse) GetQuiz() *Quiz {
@@ -170,7 +214,7 @@ type GetQuizzesRequest struct {
 
 func (x *GetQuizzesRequest) Reset() {
 	*x = GetQuizzesRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[3]
+	mi := &file_api_proto_v1_game_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -182,7 +226,7 @@ func (x *GetQuizzesRequest) String() string {
 func (*GetQuizzesRequest) ProtoMessage() {}
 
 func (x *GetQuizzesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[3]
+	mi := &file_api_proto_v1_game_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -195,7 +239,7 @@ func (x *GetQuizzesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQuizzesRequest.ProtoReflect.Descriptor instead.
 func (*GetQuizzesRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{3}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{4}
 }
 
 type GetQuizzesResponse struct {
@@ -207,7 +251,7 @@ type GetQuizzesResponse struct {
 
 func (x *GetQuizzesResponse) Reset() {
 	*x = GetQuizzesResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[4]
+	mi := &file_api_proto_v1_game_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -219,7 +263,7 @@ func (x *GetQuizzesResponse) String() string {
 func (*GetQuizzesResponse) ProtoMessage() {}
 
 func (x *GetQuizzesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[4]
+	mi := &file_api_proto_v1_game_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -232,7 +276,7 @@ func (x *GetQuizzesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQuizzesResponse.ProtoReflect.Descriptor instead.
 func (*GetQuizzesResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{4}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetQuizzesResponse) GetQuizzes() []*Quiz {
@@ -252,7 +296,7 @@ type AnswerQuestionsRequest struct {
 
 func (x *AnswerQuestionsRequest) Reset() {
 	*x = AnswerQuestionsRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[5]
+	mi := &file_api_proto_v1_game_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -264,7 +308,7 @@ func (x *AnswerQuestionsRequest) String() string {
 func (*AnswerQuestionsRequest) ProtoMessage() {}
 
 func (x *AnswerQuestionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[5]
+	mi := &file_api_proto_v1_game_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -277,7 +321,7 @@ func (x *AnswerQuestionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnswerQuestionsRequest.ProtoReflect.Descriptor instead.
 func (*AnswerQuestionsRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{5}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AnswerQuestionsRequest) GetUserId() string {
@@ -304,7 +348,7 @@ type AnswerQuestionsResponse struct {
 
 func (x *AnswerQuestionsResponse) Reset() {
 	*x = AnswerQuestionsResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[6]
+	mi := &file_api_proto_v1_game_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +360,7 @@ func (x *AnswerQuestionsResponse) String() string {
 func (*AnswerQuestionsResponse) ProtoMessage() {}
 
 func (x *AnswerQuestionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[6]
+	mi := &file_api_proto_v1_game_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +373,7 @@ func (x *AnswerQuestionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnswerQuestionsResponse.ProtoReflect.Descriptor instead.
 func (*AnswerQuestionsResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{6}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AnswerQuestionsResponse) GetScore() int32 {
@@ -358,7 +402,7 @@ type QuestionResult struct {
 
 func (x *QuestionResult) Reset() {
 	*x = QuestionResult{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[7]
+	mi := &file_api_proto_v1_game_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -370,7 +414,7 @@ func (x *QuestionResult) String() string {
 func (*QuestionResult) ProtoMessage() {}
 
 func (x *QuestionResult) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[7]
+	mi := &file_api_proto_v1_game_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -383,7 +427,7 @@ func (x *QuestionResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QuestionResult.ProtoReflect.Descriptor instead.
 func (*QuestionResult) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{7}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *QuestionResult) GetQuestionId() string {
@@ -423,7 +467,7 @@ type GetActiveQuizRequest struct {
 
 func (x *GetActiveQuizRequest) Reset() {
 	*x = GetActiveQuizRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[8]
+	mi := &file_api_proto_v1_game_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -435,7 +479,7 @@ func (x *GetActiveQuizRequest) String() string {
 func (*GetActiveQuizRequest) ProtoMessage() {}
 
 func (x *GetActiveQuizRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[8]
+	mi := &file_api_proto_v1_game_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -448,7 +492,7 @@ func (x *GetActiveQuizRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveQuizRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveQuizRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{8}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetActiveQuizRequest) GetUserId() string {
@@ -467,7 +511,7 @@ type GetActiveQuizResponse struct {
 
 func (x *GetActiveQuizResponse) Reset() {
 	*x = GetActiveQuizResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[9]
+	mi := &file_api_proto_v1_game_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -479,7 +523,7 @@ func (x *GetActiveQuizResponse) String() string {
 func (*GetActiveQuizResponse) ProtoMessage() {}
 
 func (x *GetActiveQuizResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[9]
+	mi := &file_api_proto_v1_game_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -492,7 +536,7 @@ func (x *GetActiveQuizResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveQuizResponse.ProtoReflect.Descriptor instead.
 func (*GetActiveQuizResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{9}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetActiveQuizResponse) GetQuiz() *Quiz {
@@ -514,7 +558,7 @@ type CreateQuizRequest struct {
 
 func (x *CreateQuizRequest) Reset() {
 	*x = CreateQuizRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[10]
+	mi := &file_api_proto_v1_game_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -526,7 +570,7 @@ func (x *CreateQuizRequest) String() string {
 func (*CreateQuizRequest) ProtoMessage() {}
 
 func (x *CreateQuizRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[10]
+	mi := &file_api_proto_v1_game_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -539,7 +583,7 @@ func (x *CreateQuizRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateQuizRequest.ProtoReflect.Descriptor instead.
 func (*CreateQuizRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{10}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateQuizRequest) GetTitle() string {
@@ -579,7 +623,7 @@ type CreateQuizResponse struct {
 
 func (x *CreateQuizResponse) Reset() {
 	*x = CreateQuizResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[11]
+	mi := &file_api_proto_v1_game_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +635,7 @@ func (x *CreateQuizResponse) String() string {
 func (*CreateQuizResponse) ProtoMessage() {}
 
 func (x *CreateQuizResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[11]
+	mi := &file_api_proto_v1_game_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +648,7 @@ func (x *CreateQuizResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateQuizResponse.ProtoReflect.Descriptor instead.
 func (*CreateQuizResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{11}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CreateQuizResponse) GetQuiz() *Quiz {
@@ -622,7 +666,7 @@ type GetSessionsRequest struct {
 
 func (x *GetSessionsRequest) Reset() {
 	*x = GetSessionsRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[12]
+	mi := &file_api_proto_v1_game_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -634,7 +678,7 @@ func (x *GetSessionsRequest) String() string {
 func (*GetSessionsRequest) ProtoMessage() {}
 
 func (x *GetSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[12]
+	mi := &file_api_proto_v1_game_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -647,7 +691,7 @@ func (x *GetSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionsRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{12}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{13}
 }
 
 type GetSessionsResponse struct {
@@ -659,7 +703,7 @@ type GetSessionsResponse struct {
 
 func (x *GetSessionsResponse) Reset() {
 	*x = GetSessionsResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[13]
+	mi := &file_api_proto_v1_game_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -671,7 +715,7 @@ func (x *GetSessionsResponse) String() string {
 func (*GetSessionsResponse) ProtoMessage() {}
 
 func (x *GetSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[13]
+	mi := &file_api_proto_v1_game_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -684,7 +728,7 @@ func (x *GetSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionsResponse.ProtoReflect.Descriptor instead.
 func (*GetSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{13}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetSessionsResponse) GetSessions() []*Session {
@@ -704,7 +748,7 @@ type JoinQuizRequest struct {
 
 func (x *JoinQuizRequest) Reset() {
 	*x = JoinQuizRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[14]
+	mi := &file_api_proto_v1_game_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -716,7 +760,7 @@ func (x *JoinQuizRequest) String() string {
 func (*JoinQuizRequest) ProtoMessage() {}
 
 func (x *JoinQuizRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[14]
+	mi := &file_api_proto_v1_game_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +773,7 @@ func (x *JoinQuizRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JoinQuizRequest.ProtoReflect.Descriptor instead.
 func (*JoinQuizRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{14}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *JoinQuizRequest) GetUserId() string {
@@ -755,7 +799,7 @@ type JoinQuizResponse struct {
 
 func (x *JoinQuizResponse) Reset() {
 	*x = JoinQuizResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[15]
+	mi := &file_api_proto_v1_game_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +811,7 @@ func (x *JoinQuizResponse) String() string {
 func (*JoinQuizResponse) ProtoMessage() {}
 
 func (x *JoinQuizResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[15]
+	mi := &file_api_proto_v1_game_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +824,7 @@ func (x *JoinQuizResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JoinQuizResponse.ProtoReflect.Descriptor instead.
 func (*JoinQuizResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{15}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *JoinQuizResponse) GetSession() *Session {
@@ -800,7 +844,7 @@ type QuitQuizRequest struct {
 
 func (x *QuitQuizRequest) Reset() {
 	*x = QuitQuizRequest{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[16]
+	mi := &file_api_proto_v1_game_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -812,7 +856,7 @@ func (x *QuitQuizRequest) String() string {
 func (*QuitQuizRequest) ProtoMessage() {}
 
 func (x *QuitQuizRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[16]
+	mi := &file_api_proto_v1_game_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -825,7 +869,7 @@ func (x *QuitQuizRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QuitQuizRequest.ProtoReflect.Descriptor instead.
 func (*QuitQuizRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{16}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *QuitQuizRequest) GetUserId() string {
@@ -851,7 +895,7 @@ type QuitQuizResponse struct {
 
 func (x *QuitQuizResponse) Reset() {
 	*x = QuitQuizResponse{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[17]
+	mi := &file_api_proto_v1_game_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -863,7 +907,7 @@ func (x *QuitQuizResponse) String() string {
 func (*QuitQuizResponse) ProtoMessage() {}
 
 func (x *QuitQuizResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[17]
+	mi := &file_api_proto_v1_game_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -876,7 +920,7 @@ func (x *QuitQuizResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QuitQuizResponse.ProtoReflect.Descriptor instead.
 func (*QuitQuizResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{17}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *QuitQuizResponse) GetSuccess() bool {
@@ -899,7 +943,7 @@ type Session struct {
 
 func (x *Session) Reset() {
 	*x = Session{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[18]
+	mi := &file_api_proto_v1_game_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -911,7 +955,7 @@ func (x *Session) String() string {
 func (*Session) ProtoMessage() {}
 
 func (x *Session) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[18]
+	mi := &file_api_proto_v1_game_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -924,7 +968,7 @@ func (x *Session) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Session.ProtoReflect.Descriptor instead.
 func (*Session) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{18}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *Session) GetId() string {
@@ -976,7 +1020,7 @@ type Quiz struct {
 
 func (x *Quiz) Reset() {
 	*x = Quiz{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[19]
+	mi := &file_api_proto_v1_game_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -988,7 +1032,7 @@ func (x *Quiz) String() string {
 func (*Quiz) ProtoMessage() {}
 
 func (x *Quiz) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[19]
+	mi := &file_api_proto_v1_game_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1001,7 +1045,7 @@ func (x *Quiz) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Quiz.ProtoReflect.Descriptor instead.
 func (*Quiz) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{19}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *Quiz) GetId() string {
@@ -1058,7 +1102,7 @@ type Question struct {
 
 func (x *Question) Reset() {
 	*x = Question{}
-	mi := &file_api_proto_v1_game_proto_msgTypes[20]
+	mi := &file_api_proto_v1_game_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1070,7 +1114,7 @@ func (x *Question) String() string {
 func (*Question) ProtoMessage() {}
 
 func (x *Question) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_game_proto_msgTypes[20]
+	mi := &file_api_proto_v1_game_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1083,7 +1127,7 @@ func (x *Question) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Question.ProtoReflect.Descriptor instead.
 func (*Question) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{20}
+	return file_api_proto_v1_game_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *Question) GetQuestionId() string {
@@ -1119,6 +1163,8 @@ var File_api_proto_v1_game_proto protoreflect.FileDescriptor
 const file_api_proto_v1_game_proto_rawDesc = "" +
 	"\n" +
 	"\x17api/proto/v1/game.proto\x12\auser.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"1\n" +
+	"\x16StartForYouQuizRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"1\n" +
 	"\x16StartRandomQuizRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"F\n" +
 	"\x15StartGenreQuizRequest\x12\x17\n" +
@@ -1187,7 +1233,7 @@ const file_api_proto_v1_game_proto_rawDesc = "" +
 	"questionId\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x18\n" +
 	"\achoices\x18\x03 \x03(\tR\achoices\x120\n" +
-	"\x14correct_answer_index\x18\x04 \x01(\x05R\x12correctAnswerIndex2\xab\x05\n" +
+	"\x14correct_answer_index\x18\x04 \x01(\x05R\x12correctAnswerIndex2\xfb\x05\n" +
 	"\vGameService\x12E\n" +
 	"\n" +
 	"GetQuizzes\x12\x1a.user.v1.GetQuizzesRequest\x1a\x1b.user.v1.GetQuizzesResponse\x12H\n" +
@@ -1199,7 +1245,8 @@ const file_api_proto_v1_game_proto_rawDesc = "" +
 	"\rGetActiveQuiz\x12\x1d.user.v1.GetActiveQuizRequest\x1a\x1e.user.v1.GetActiveQuizResponse\x12T\n" +
 	"\x0fAnswerQuestions\x12\x1f.user.v1.AnswerQuestionsRequest\x1a .user.v1.AnswerQuestionsResponse\x12N\n" +
 	"\x0fStartRandomQuiz\x12\x1f.user.v1.StartRandomQuizRequest\x1a\x1a.user.v1.StartQuizResponse\x12L\n" +
-	"\x0eStartGenreQuiz\x12\x1e.user.v1.StartGenreQuizRequest\x1a\x1a.user.v1.StartQuizResponseB.Z,github.com/BOURREAUQuentin/game/api/proto/v1b\x06proto3"
+	"\x0eStartGenreQuiz\x12\x1e.user.v1.StartGenreQuizRequest\x1a\x1a.user.v1.StartQuizResponse\x12N\n" +
+	"\x0fStartForYouQuiz\x12\x1f.user.v1.StartForYouQuizRequest\x1a\x1a.user.v1.StartQuizResponseB.Z,github.com/BOURREAUQuentin/game/api/proto/v1b\x06proto3"
 
 var (
 	file_api_proto_v1_game_proto_rawDescOnce sync.Once
@@ -1213,64 +1260,67 @@ func file_api_proto_v1_game_proto_rawDescGZIP() []byte {
 	return file_api_proto_v1_game_proto_rawDescData
 }
 
-var file_api_proto_v1_game_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_api_proto_v1_game_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_api_proto_v1_game_proto_goTypes = []any{
-	(*StartRandomQuizRequest)(nil),  // 0: user.v1.StartRandomQuizRequest
-	(*StartGenreQuizRequest)(nil),   // 1: user.v1.StartGenreQuizRequest
-	(*StartQuizResponse)(nil),       // 2: user.v1.StartQuizResponse
-	(*GetQuizzesRequest)(nil),       // 3: user.v1.GetQuizzesRequest
-	(*GetQuizzesResponse)(nil),      // 4: user.v1.GetQuizzesResponse
-	(*AnswerQuestionsRequest)(nil),  // 5: user.v1.AnswerQuestionsRequest
-	(*AnswerQuestionsResponse)(nil), // 6: user.v1.AnswerQuestionsResponse
-	(*QuestionResult)(nil),          // 7: user.v1.QuestionResult
-	(*GetActiveQuizRequest)(nil),    // 8: user.v1.GetActiveQuizRequest
-	(*GetActiveQuizResponse)(nil),   // 9: user.v1.GetActiveQuizResponse
-	(*CreateQuizRequest)(nil),       // 10: user.v1.CreateQuizRequest
-	(*CreateQuizResponse)(nil),      // 11: user.v1.CreateQuizResponse
-	(*GetSessionsRequest)(nil),      // 12: user.v1.GetSessionsRequest
-	(*GetSessionsResponse)(nil),     // 13: user.v1.GetSessionsResponse
-	(*JoinQuizRequest)(nil),         // 14: user.v1.JoinQuizRequest
-	(*JoinQuizResponse)(nil),        // 15: user.v1.JoinQuizResponse
-	(*QuitQuizRequest)(nil),         // 16: user.v1.QuitQuizRequest
-	(*QuitQuizResponse)(nil),        // 17: user.v1.QuitQuizResponse
-	(*Session)(nil),                 // 18: user.v1.Session
-	(*Quiz)(nil),                    // 19: user.v1.Quiz
-	(*Question)(nil),                // 20: user.v1.Question
-	(*timestamppb.Timestamp)(nil),   // 21: google.protobuf.Timestamp
+	(*StartForYouQuizRequest)(nil),  // 0: user.v1.StartForYouQuizRequest
+	(*StartRandomQuizRequest)(nil),  // 1: user.v1.StartRandomQuizRequest
+	(*StartGenreQuizRequest)(nil),   // 2: user.v1.StartGenreQuizRequest
+	(*StartQuizResponse)(nil),       // 3: user.v1.StartQuizResponse
+	(*GetQuizzesRequest)(nil),       // 4: user.v1.GetQuizzesRequest
+	(*GetQuizzesResponse)(nil),      // 5: user.v1.GetQuizzesResponse
+	(*AnswerQuestionsRequest)(nil),  // 6: user.v1.AnswerQuestionsRequest
+	(*AnswerQuestionsResponse)(nil), // 7: user.v1.AnswerQuestionsResponse
+	(*QuestionResult)(nil),          // 8: user.v1.QuestionResult
+	(*GetActiveQuizRequest)(nil),    // 9: user.v1.GetActiveQuizRequest
+	(*GetActiveQuizResponse)(nil),   // 10: user.v1.GetActiveQuizResponse
+	(*CreateQuizRequest)(nil),       // 11: user.v1.CreateQuizRequest
+	(*CreateQuizResponse)(nil),      // 12: user.v1.CreateQuizResponse
+	(*GetSessionsRequest)(nil),      // 13: user.v1.GetSessionsRequest
+	(*GetSessionsResponse)(nil),     // 14: user.v1.GetSessionsResponse
+	(*JoinQuizRequest)(nil),         // 15: user.v1.JoinQuizRequest
+	(*JoinQuizResponse)(nil),        // 16: user.v1.JoinQuizResponse
+	(*QuitQuizRequest)(nil),         // 17: user.v1.QuitQuizRequest
+	(*QuitQuizResponse)(nil),        // 18: user.v1.QuitQuizResponse
+	(*Session)(nil),                 // 19: user.v1.Session
+	(*Quiz)(nil),                    // 20: user.v1.Quiz
+	(*Question)(nil),                // 21: user.v1.Question
+	(*timestamppb.Timestamp)(nil),   // 22: google.protobuf.Timestamp
 }
 var file_api_proto_v1_game_proto_depIdxs = []int32{
-	19, // 0: user.v1.StartQuizResponse.quiz:type_name -> user.v1.Quiz
-	19, // 1: user.v1.GetQuizzesResponse.quizzes:type_name -> user.v1.Quiz
-	7,  // 2: user.v1.AnswerQuestionsResponse.results:type_name -> user.v1.QuestionResult
-	19, // 3: user.v1.GetActiveQuizResponse.quiz:type_name -> user.v1.Quiz
-	20, // 4: user.v1.CreateQuizRequest.questions:type_name -> user.v1.Question
-	19, // 5: user.v1.CreateQuizResponse.quiz:type_name -> user.v1.Quiz
-	18, // 6: user.v1.GetSessionsResponse.sessions:type_name -> user.v1.Session
-	18, // 7: user.v1.JoinQuizResponse.session:type_name -> user.v1.Session
-	21, // 8: user.v1.Session.joined_at:type_name -> google.protobuf.Timestamp
-	21, // 9: user.v1.Session.last_activity:type_name -> google.protobuf.Timestamp
-	21, // 10: user.v1.Quiz.created_at:type_name -> google.protobuf.Timestamp
-	20, // 11: user.v1.Quiz.questions:type_name -> user.v1.Question
-	3,  // 12: user.v1.GameService.GetQuizzes:input_type -> user.v1.GetQuizzesRequest
-	12, // 13: user.v1.GameService.GetSessions:input_type -> user.v1.GetSessionsRequest
-	14, // 14: user.v1.GameService.JoinQuiz:input_type -> user.v1.JoinQuizRequest
-	16, // 15: user.v1.GameService.QuitQuiz:input_type -> user.v1.QuitQuizRequest
-	10, // 16: user.v1.GameService.CreateQuiz:input_type -> user.v1.CreateQuizRequest
-	8,  // 17: user.v1.GameService.GetActiveQuiz:input_type -> user.v1.GetActiveQuizRequest
-	5,  // 18: user.v1.GameService.AnswerQuestions:input_type -> user.v1.AnswerQuestionsRequest
-	0,  // 19: user.v1.GameService.StartRandomQuiz:input_type -> user.v1.StartRandomQuizRequest
-	1,  // 20: user.v1.GameService.StartGenreQuiz:input_type -> user.v1.StartGenreQuizRequest
-	4,  // 21: user.v1.GameService.GetQuizzes:output_type -> user.v1.GetQuizzesResponse
-	13, // 22: user.v1.GameService.GetSessions:output_type -> user.v1.GetSessionsResponse
-	15, // 23: user.v1.GameService.JoinQuiz:output_type -> user.v1.JoinQuizResponse
-	17, // 24: user.v1.GameService.QuitQuiz:output_type -> user.v1.QuitQuizResponse
-	11, // 25: user.v1.GameService.CreateQuiz:output_type -> user.v1.CreateQuizResponse
-	9,  // 26: user.v1.GameService.GetActiveQuiz:output_type -> user.v1.GetActiveQuizResponse
-	6,  // 27: user.v1.GameService.AnswerQuestions:output_type -> user.v1.AnswerQuestionsResponse
-	2,  // 28: user.v1.GameService.StartRandomQuiz:output_type -> user.v1.StartQuizResponse
-	2,  // 29: user.v1.GameService.StartGenreQuiz:output_type -> user.v1.StartQuizResponse
-	21, // [21:30] is the sub-list for method output_type
-	12, // [12:21] is the sub-list for method input_type
+	20, // 0: user.v1.StartQuizResponse.quiz:type_name -> user.v1.Quiz
+	20, // 1: user.v1.GetQuizzesResponse.quizzes:type_name -> user.v1.Quiz
+	8,  // 2: user.v1.AnswerQuestionsResponse.results:type_name -> user.v1.QuestionResult
+	20, // 3: user.v1.GetActiveQuizResponse.quiz:type_name -> user.v1.Quiz
+	21, // 4: user.v1.CreateQuizRequest.questions:type_name -> user.v1.Question
+	20, // 5: user.v1.CreateQuizResponse.quiz:type_name -> user.v1.Quiz
+	19, // 6: user.v1.GetSessionsResponse.sessions:type_name -> user.v1.Session
+	19, // 7: user.v1.JoinQuizResponse.session:type_name -> user.v1.Session
+	22, // 8: user.v1.Session.joined_at:type_name -> google.protobuf.Timestamp
+	22, // 9: user.v1.Session.last_activity:type_name -> google.protobuf.Timestamp
+	22, // 10: user.v1.Quiz.created_at:type_name -> google.protobuf.Timestamp
+	21, // 11: user.v1.Quiz.questions:type_name -> user.v1.Question
+	4,  // 12: user.v1.GameService.GetQuizzes:input_type -> user.v1.GetQuizzesRequest
+	13, // 13: user.v1.GameService.GetSessions:input_type -> user.v1.GetSessionsRequest
+	15, // 14: user.v1.GameService.JoinQuiz:input_type -> user.v1.JoinQuizRequest
+	17, // 15: user.v1.GameService.QuitQuiz:input_type -> user.v1.QuitQuizRequest
+	11, // 16: user.v1.GameService.CreateQuiz:input_type -> user.v1.CreateQuizRequest
+	9,  // 17: user.v1.GameService.GetActiveQuiz:input_type -> user.v1.GetActiveQuizRequest
+	6,  // 18: user.v1.GameService.AnswerQuestions:input_type -> user.v1.AnswerQuestionsRequest
+	1,  // 19: user.v1.GameService.StartRandomQuiz:input_type -> user.v1.StartRandomQuizRequest
+	2,  // 20: user.v1.GameService.StartGenreQuiz:input_type -> user.v1.StartGenreQuizRequest
+	0,  // 21: user.v1.GameService.StartForYouQuiz:input_type -> user.v1.StartForYouQuizRequest
+	5,  // 22: user.v1.GameService.GetQuizzes:output_type -> user.v1.GetQuizzesResponse
+	14, // 23: user.v1.GameService.GetSessions:output_type -> user.v1.GetSessionsResponse
+	16, // 24: user.v1.GameService.JoinQuiz:output_type -> user.v1.JoinQuizResponse
+	18, // 25: user.v1.GameService.QuitQuiz:output_type -> user.v1.QuitQuizResponse
+	12, // 26: user.v1.GameService.CreateQuiz:output_type -> user.v1.CreateQuizResponse
+	10, // 27: user.v1.GameService.GetActiveQuiz:output_type -> user.v1.GetActiveQuizResponse
+	7,  // 28: user.v1.GameService.AnswerQuestions:output_type -> user.v1.AnswerQuestionsResponse
+	3,  // 29: user.v1.GameService.StartRandomQuiz:output_type -> user.v1.StartQuizResponse
+	3,  // 30: user.v1.GameService.StartGenreQuiz:output_type -> user.v1.StartQuizResponse
+	3,  // 31: user.v1.GameService.StartForYouQuiz:output_type -> user.v1.StartQuizResponse
+	22, // [22:32] is the sub-list for method output_type
+	12, // [12:22] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -1287,7 +1337,7 @@ func file_api_proto_v1_game_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_v1_game_proto_rawDesc), len(file_api_proto_v1_game_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -12,6 +12,7 @@ import (
 	"github.com/BOURREAUQuentin/game/cmd/server"
 	"github.com/BOURREAUQuentin/game/internal/adapters/catalog"
 	"github.com/BOURREAUQuentin/game/internal/adapters/repository"
+	"github.com/BOURREAUQuentin/game/internal/adapters/user"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
@@ -21,6 +22,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Configuration via Environment Variables
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
 		mongoURI = "mongodb://root:example@localhost:27017/"
@@ -31,6 +33,12 @@ func main() {
 		catalogURL = "http://catalog:3200/graphql"
 	}
 
+	userURL := os.Getenv("USER_SERVICE_URL")
+	if userURL == "" {
+		userURL = "http://user:3000"
+	}
+
+	// Database Connection
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
@@ -38,18 +46,23 @@ func main() {
 
 	db := client.Database("game")
 
-	// Seed database if empty
+	// Optional: Seed database if empty
 	log.Println("Checking if seeding is required...")
 	seed(db)
 
+	// Dependency Injection
 	quizRepo := repository.NewMongoQuizRepository(db)
 	sessionRepo := repository.NewMongoSessionRepository(db)
-	userRepo := repository.NewUserRepository()
+
+	// Inject the new HTTP User Adapter
+	userRepo := user.NewHttpUserRepository(userURL)
+
+	// Inject the updated Catalog Adapter
 	catalogRepo := catalog.NewGraphQLCatalogRepository(catalogURL)
 
 	gameServer := server.NewGameServer(quizRepo, sessionRepo, userRepo, catalogRepo)
 
-	// Launch server
+	// gRPC Server Launch
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatal(err)
@@ -58,7 +71,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterGameServiceServer(s, gameServer)
 
-	log.Println("grpc server is listening on :50051")
+	log.Println("Game gRPC server is listening on :50051")
 	if err := s.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +95,6 @@ func seed(db *mongo.Database) {
 			} else {
 				var docs []interface{}
 				for _, q := range rawQuizzes {
-					// Handle extended JSON date format for created_at
 					if ca, ok := q["created_at"].(map[string]interface{}); ok {
 						if dateStr, ok := ca["$date"].(string); ok {
 							parsedTime, err := time.Parse(time.RFC3339, dateStr)

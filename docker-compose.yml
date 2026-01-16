@@ -39,7 +39,7 @@ services:
     ports:
       - "3201:3201"
     env_file:
-      - .env
+      - user/.env
     environment:
       - MONGO_URI=mongodb://root:password@mongo:27017/user_db?authSource=admin
     depends_on:
@@ -54,6 +54,7 @@ services:
       - "50051:50051"
     environment:
       - MONGO_URI=mongodb://root:password@mongo:27017/game_db?authSource=admin
+      - USER_SERVICE_URL=http://user:3201
     depends_on:
       - mongo
 
@@ -64,3 +65,18 @@ services:
       - "8080:8080"
     depends_on:
       - game
+
+  ingestion:
+    build: 
+      context: ./ingestion
+      dockerfile: Dockerfile
+    container_name: ingestion_service
+    env_file:
+      - ./ingestion/.env
+    environment:
+      - CATALOG_URL=http://catalog:3200/graphql
+    ports:
+      - "8000:8000"
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - catalog

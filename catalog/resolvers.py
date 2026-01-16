@@ -86,6 +86,33 @@ def artist_by_id(_, info, artist_id):
         raise GraphQLError(f"Artist not found with artist_id : {artist_id}")
     return artist
 
+def questions_by_artists(_, info, artists, limit):
+    """
+    Retrieves tracks for a list of artist names using $in operator.
+    Uses aggregation with $sample to return a random selection of tracks.
+    """
+    try:
+        # 1. Find artist IDs for the given names using $in
+        found_artists = list(database["artists"].find({"name": {"$in": artists}}, {"artist_id": 1}))
+        artist_ids = [a["artist_id"] for a in found_artists]
+        
+        if not artist_ids:
+            return []
+
+        # 2. Use aggregation pipeline to get random tracks
+        pipeline = [
+            {"$match": {"artist_id": {"$in": artist_ids}}},
+            {"$sample": {"size": limit}}
+        ]
+        
+        matching_tracks = list(database["tracks"].aggregate(pipeline))
+        
+        return matching_tracks
+
+    except Exception as e:
+        print(f"MONGO ERROR: {e}", flush=True) 
+        raise GraphQLError("Database connection error or query failed")
+
 ### CREATE OPERATIONS
 
 def add_track(_, info, track_id, title, artist_id, album_name, release_date):
@@ -105,7 +132,7 @@ def add_track(_, info, track_id, title, artist_id, album_name, release_date):
         if tracks.find_one({"track_id": track_id}):
             raise GraphQLError(f"track_id already exists : {track_id}")
             
-        if not artists.find_one({"artist_id": artist_id}):
+        if not database["artists"].find_one({"artist_id": artist_id}):
             raise GraphQLError(f"artist_id does not exist : {artist_id}")
             
         new_track = {
@@ -120,7 +147,6 @@ def add_track(_, info, track_id, title, artist_id, album_name, release_date):
     
     except GraphQLError as ge:
         raise ge
-    
     except Exception as e:
         print(f"MONGO ERROR: {e}", flush=True) 
         raise GraphQLError("Database connection error or query failed")
@@ -139,15 +165,13 @@ def add_many_tracks(_, info, tracks_list):
         if existing_ids:
             raise GraphQLError(f"track_ids already exist: {existing_ids}")
 
-        # Bulk check artists existence
-        found_artists = artists.find({"artist_id": {"$in": input_artist_ids}}, {"artist_id": 1})
+        found_artists = database["artists"].find({"artist_id": {"$in": input_artist_ids}}, {"artist_id": 1})
         found_artist_ids = [a["artist_id"] for a in found_artists]
         
         for a_id in input_artist_ids:
             if a_id not in found_artist_ids:
                 raise GraphQLError(f"artist_id {a_id} does not exist")
 
-        # Insert everything
         tracks.insert_many(tracks_list)
         return "Tracks added"
 
@@ -182,7 +206,6 @@ def add_artist(_, info, artist_id, name, genres):
         
     except GraphQLError as ge:
         raise ge
-    
     except Exception as e:
         print(f"MONGO ERROR: {e}", flush=True) 
         raise GraphQLError("Database connection error or query failed")
@@ -192,16 +215,13 @@ def add_many_artists(_, info, artists_list):
     try:
         input_artist_ids = [a["artist_id"] for a in artists_list]
 
-        # Bulk check for existing artists
         existing = artists.find({"artist_id": {"$in": input_artist_ids}}, {"artist_id": 1})
         existing_ids = [a["artist_id"] for a in existing]
         
         if existing_ids:
             raise GraphQLError(f"artist_ids already exist: {existing_ids}")
 
-        # Perform the bulk insertion
         artists.insert_many(artists_list)
-        
         return "Artists added"
 
     except GraphQLError as ge:
@@ -228,7 +248,6 @@ def update_track(_, info, track_id, title=None, artist_id=None, album_name=None,
         update_data = {}
         if title: update_data["title"] = title
         if artist_id: 
-            # Check if new artist exists before updating
             if not artists.find_one({"artist_id": artist_id}):
                 raise GraphQLError(f"Functional Error: artist_id {artist_id} does not exist")
             update_data["artist_id"] = artist_id
@@ -304,12 +323,11 @@ def remove_track(_, info, track_id):
     """
     try:
         track = tracks.find_one({"track_id": track_id})
-    
         if track is None:
             raise GraphQLError(f"Track not found with track_id : {track_id}")
         
         query_filter = { "track_id": track_id }
-        result = tracks.delete_one(query_filter)
+        tracks.delete_one(query_filter)
         return (f"The track with track_id {track_id}, has been removed")
     
     except GraphQLError as ge:
@@ -329,12 +347,11 @@ def remove_artist(_, info, artist_id):
     """
     try:
         artist = artists.find_one({"artist_id": artist_id})
-    
         if artist is None:
             raise GraphQLError(f"Artist not found with artist_id : {artist_id}")
         
         query_filter = { "artist_id": artist_id }
-        result = artists.delete_one(query_filter)
+        artists.delete_one(query_filter)
         return (f"The artist with artist_id {artist_id}, has been removed")
     
     except GraphQLError as ge:
