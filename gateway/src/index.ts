@@ -28,9 +28,7 @@ app.use(limiter);
 app.use(express.json());
 
 const SERVICES = {
-    USER: process.env.USER_SERVICE_URL || 'http://user_service:3001',
-    CATALOGUE: process.env.CATALOGUE_SERVICE_URL || 'http://catalog:3200',
-    INGESTION: process.env.INGESTION_SERVICE_URL || 'http://ingestion_service:5000',
+    USER: process.env.USER_SERVICE_URL || 'http://user_service:3201',
     GAME_GRPC: process.env.GAME_SERVICE_URL || 'game_service:50051'
 };
 
@@ -87,6 +85,9 @@ const GRPC_ROUTES: GrpcRouteDefinition[] = [
     { path: '/quit', method: 'post', grpcAction: 'QuitQuiz' },
     { path: '/active', method: 'get', grpcAction: 'GetActiveQuiz' },
     { path: '/answer', method: 'post', grpcAction: 'AnswerQuestions' },
+    { path: '/start/random', method: 'post', grpcAction: 'StartRandomQuiz' },
+    { path: '/start/genre', method: 'post', grpcAction: 'StartGenreQuiz' },
+    { path: '/start/foryou', method: 'post', grpcAction: 'StartForYouQuiz' },
 ];
 
 // Link routes to grpc actions
