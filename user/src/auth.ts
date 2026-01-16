@@ -15,7 +15,7 @@ if (!JWT_SECRET) {
 // POST /auth/register - Registration
 authRouter.post('/auth/register', async (req: Request, res: Response) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password, role, spotify_username } = req.body;
 
         // Validation
         if (!username || !email || !password) {
@@ -31,6 +31,34 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        let favorite_artists: string[] = [];
+        
+        // Handle Spotify Ingestion if provided
+        if (spotify_username) {
+            try {
+                const ingestionUrl = process.env.INGESTION_URL || 'http://ingestion:8000';
+                console.log(`[Register] Triggering ingestion for spotify user: ${spotify_username}`);
+                
+                const response = await fetch(`${ingestionUrl}/ingest/user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier: spotify_username })
+                });
+
+                if (response.ok) {
+                    const data = await response.json() as { artists?: string[] };
+                    if (data.artists && Array.isArray(data.artists)) {
+                        console.log(`[Register] Ingestion success. Found artists: ${data.artists}`);
+                        favorite_artists = data.artists;
+                    }
+                } else {
+                    console.error('[Register] Ingestion service failed', await response.text());
+                }
+            } catch (ingestError) {
+                console.error('[Register] Error contacting ingestion service:', ingestError);
+            }
+        }
+
         // Create user
         const newUser = new User({
             username,
@@ -42,7 +70,8 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
                 total_score_accumulated: 0,
                 average_score: 0
             },
-            favorite_artists: []
+            spotify_username,
+            favorite_artists: favorite_artists
         });
 
         await newUser.save();
@@ -60,7 +89,9 @@ authRouter.post('/auth/register', async (req: Request, res: Response) => {
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
-                role: newUser.role
+                role: newUser.role,
+                favorite_artists: newUser.favorite_artists,
+                spotify_username: newUser.spotify_username
             },
             token
         });

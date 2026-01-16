@@ -28,6 +28,7 @@ const (
 	GameService_AnswerQuestions_FullMethodName = "/user.v1.GameService/AnswerQuestions"
 	GameService_StartRandomQuiz_FullMethodName = "/user.v1.GameService/StartRandomQuiz"
 	GameService_StartGenreQuiz_FullMethodName  = "/user.v1.GameService/StartGenreQuiz"
+	GameService_StartForYouQuiz_FullMethodName = "/user.v1.GameService/StartForYouQuiz"
 )
 
 // GameServiceClient is the client API for GameService service.
@@ -43,6 +44,7 @@ type GameServiceClient interface {
 	AnswerQuestions(ctx context.Context, in *AnswerQuestionsRequest, opts ...grpc.CallOption) (*AnswerQuestionsResponse, error)
 	StartRandomQuiz(ctx context.Context, in *StartRandomQuizRequest, opts ...grpc.CallOption) (*StartQuizResponse, error)
 	StartGenreQuiz(ctx context.Context, in *StartGenreQuizRequest, opts ...grpc.CallOption) (*StartQuizResponse, error)
+	StartForYouQuiz(ctx context.Context, in *StartForYouQuizRequest, opts ...grpc.CallOption) (*StartQuizResponse, error)
 }
 
 type gameServiceClient struct {
@@ -143,6 +145,16 @@ func (c *gameServiceClient) StartGenreQuiz(ctx context.Context, in *StartGenreQu
 	return out, nil
 }
 
+func (c *gameServiceClient) StartForYouQuiz(ctx context.Context, in *StartForYouQuizRequest, opts ...grpc.CallOption) (*StartQuizResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartQuizResponse)
+	err := c.cc.Invoke(ctx, GameService_StartForYouQuiz_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GameServiceServer is the server API for GameService service.
 // All implementations must embed UnimplementedGameServiceServer
 // for forward compatibility.
@@ -156,6 +168,7 @@ type GameServiceServer interface {
 	AnswerQuestions(context.Context, *AnswerQuestionsRequest) (*AnswerQuestionsResponse, error)
 	StartRandomQuiz(context.Context, *StartRandomQuizRequest) (*StartQuizResponse, error)
 	StartGenreQuiz(context.Context, *StartGenreQuizRequest) (*StartQuizResponse, error)
+	StartForYouQuiz(context.Context, *StartForYouQuizRequest) (*StartQuizResponse, error)
 	mustEmbedUnimplementedGameServiceServer()
 }
 
@@ -192,6 +205,9 @@ func (UnimplementedGameServiceServer) StartRandomQuiz(context.Context, *StartRan
 }
 func (UnimplementedGameServiceServer) StartGenreQuiz(context.Context, *StartGenreQuizRequest) (*StartQuizResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartGenreQuiz not implemented")
+}
+func (UnimplementedGameServiceServer) StartForYouQuiz(context.Context, *StartForYouQuizRequest) (*StartQuizResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartForYouQuiz not implemented")
 }
 func (UnimplementedGameServiceServer) mustEmbedUnimplementedGameServiceServer() {}
 func (UnimplementedGameServiceServer) testEmbeddedByValue()                     {}
@@ -376,6 +392,24 @@ func _GameService_StartGenreQuiz_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameService_StartForYouQuiz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartForYouQuizRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServiceServer).StartForYouQuiz(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameService_StartForYouQuiz_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServiceServer).StartForYouQuiz(ctx, req.(*StartForYouQuizRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GameService_ServiceDesc is the grpc.ServiceDesc for GameService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -418,6 +452,10 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartGenreQuiz",
 			Handler:    _GameService_StartGenreQuiz_Handler,
+		},
+		{
+			MethodName: "StartForYouQuiz",
+			Handler:    _GameService_StartForYouQuiz_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

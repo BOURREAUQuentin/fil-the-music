@@ -25,6 +25,7 @@ query.set_field('track_json', r.track_json)
 query.set_field('artist_json', r.artist_json)
 query.set_field('track_by_id', r.track_by_id)
 query.set_field('artist_by_id', r.artist_by_id)
+query.set_field('questions_by_artists', r.questions_by_artists)
 
 mutation.set_field('add_track', r.add_track)
 mutation.set_field('add_many_tracks', r.add_many_tracks)

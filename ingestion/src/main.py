@@ -3,10 +3,14 @@ import os
 import base64
 import logging
 import time
+import re
 from typing import Optional, Dict, List, Any
+from collections import Counter
 
 import httpx
 from dotenv import load_dotenv
+from fastapi import FastAPI, BackgroundTasks, HTTPException
+from pydantic import BaseModel
 
 # Configuration du logging
 logging.basicConfig(
@@ -18,31 +22,34 @@ logger = logging.getLogger("IngestionService")
 # Chargement des variables d'environnement
 load_dotenv()
 
-# Configuration
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-# Note: Le port par défaut du service catalog dans docker-compose.yml semble être 3200, mais le prompt indiquait 8000.
-# Je mets une valeur par défaut, surchargeable via ENV.
 CATALOG_URL = os.getenv("CATALOG_URL", "http://catalog:3200/graphql")
 
-# IDs des Playlists
-PLAYLIST_FRANCE = "2IgPkhcHbgQ4s4PdCxljAx" # Pareil qu'en dessous
-PLAYLIST_GLOBAL = "5ABHKGoOzxkaa28ttQV9sE" # Top 100 monde par un utilisateur et non par spotify sinon ça casse car c'est des rats (merci Spotify)
+# IDs des Playlists (Loop daemon)
+PLAYLIST_FRANCE = "2IgPkhcHbgQ4s4PdCxljAx"
+PLAYLIST_GLOBAL = "5ABHKGoOzxkaa28ttQV9sE"
+
+app = FastAPI()
+
+# --- Classes Clientes (Adaptées) ---
 
 class SpotifyClient:
     def __init__(self, client_id: str, client_secret: str):
         self.client_id = client_id
         self.client_secret = client_secret
         self.token: Optional[str] = None
+        self.token_expiry: float = 0
+
+    async def get_valid_token(self) -> str:
+        """Retourne un token valide, le rafraîchit si nécessaire."""
+        if not self.token or time.time() > self.token_expiry:
+            await self.authenticate()
+        return self.token
 
     async def authenticate(self):
-        """
-        Authentification Client Credentials flow.
-        Cette méthode est appelée au début de chaque cycle pour obtenir un token frais.
-        """
         auth_url = "https://accounts.spotify.com/api/token"
         auth_header = base64.b64encode(f"{self.client_id}:{self.client_secret}".encode()).decode()
-        
         headers = {
             "Authorization": f"Basic {auth_header}",
             "Content-Type": "application/x-www-form-urlencoded"
@@ -55,18 +62,16 @@ class SpotifyClient:
                 response.raise_for_status()
                 json_data = response.json()
                 self.token = json_data["access_token"]
-                logger.info("Authentification Spotify réussie. Nouveau token généré.")
+                self.token_expiry = time.time() + json_data.get("expires_in", 3600) - 60
+                logger.info("Nouveau token Spotify généré.")
             except httpx.HTTPError as e:
-                logger.error(f"Erreur d'authentification Spotify: {e}")
+                logger.error(f"Erreur Auth Spotify: {e}")
                 raise
 
     async def get_playlist_tracks(self, playlist_id: str) -> List[Dict[str, Any]]:
-        """Récupère les 50 premiers titres d'une playlist."""
-        if not self.token:
-            raise Exception("Token manquant. Authentifiez-vous d'abord.")
-
+        token = await self.get_valid_token()
         url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-        headers = {"Authorization": f"Bearer {self.token}"}
+        headers = {"Authorization": f"Bearer {token}"}
         params = {
             "limit": 50,
             "fields": "items(track(id,name,album(name,release_date),artists(id,name),popularity))"
@@ -75,76 +80,125 @@ class SpotifyClient:
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(url, headers=headers, params=params)
+                if response.status_code == 404:
+                    return []
                 response.raise_for_status()
                 data = response.json()
                 return [item['track'] for item in data.get('items', []) if item.get('track')]
             except httpx.HTTPError as e:
-                logger.error(f"Erreur lors de la récupération de la playlist {playlist_id}: {e}")
                 return []
+
+    async def get_user_public_playlists_artists(self, user_id: str) -> List[str]:
+        """
+        Récupère les playlists publiques d'un utilisateur, compte les artistes,
+        et retourne le TOP 5.
+        """
+        token = await self.get_valid_token()
+        url = f"https://api.spotify.com/v1/users/{user_id}/playlists"
+        headers = {"Authorization": f"Bearer {token}"}
+        params = {"limit": 10}
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(url, headers=headers, params=params)
+                if response.status_code == 404:
+                    logger.warning(f"Utilisateur Spotify {user_id} introuvable.")
+                    # On retourne une liste vide plutôt que de planter, 
+                    # le client affichera que rien n'a été trouvé.
+                    return []
+                response.raise_for_status()
+                playlists = response.json().get('items', [])
+            except Exception as e:
+                logger.error(f"Erreur fetch user playlists: {e}")
+                return []
+        
+        artist_counter = Counter()
+        tasks = []
+        for pl in playlists:
+            if pl and pl.get('id'):
+                tasks.append(self.get_playlist_tracks(pl['id']))
+        
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        for tracks in results:
+            if isinstance(tracks, list):
+                for t in tracks:
+                    if t.get('artists'):
+                        for artist in t['artists']:
+                            artist_counter[artist['name']] += 1
+        
+        top_5 = [name for name, count in artist_counter.most_common(5)]
+        logger.info(f"Top 5 artistes pour {user_id}: {top_5}")
+        return top_5
+
+    async def search_artist_top_tracks(self, artist_name: str) -> List[Dict[str, Any]]:
+        token = await self.get_valid_token()
+        async with httpx.AsyncClient() as client:
+            search_url = "https://api.spotify.com/v1/search"
+            headers = {"Authorization": f"Bearer {token}"}
+            params = {"q": artist_name, "type": "artist", "limit": 1}
+            try:
+                resp = await client.get(search_url, headers=headers, params=params)
+                data = resp.json()
+                items = data.get('artists', {}).get('items', [])
+                if not items: return []
+                artist_id = items[0]['id']
+            except Exception: return []
+
+            top_url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks"
+            params_top = {"market": "FR"} 
+            try:
+                resp = await client.get(top_url, headers=headers, params=params_top)
+                data = resp.json()
+                return data.get('tracks', [])
+            except Exception: return []
 
 class CatalogClient:
     def __init__(self, url: str):
         self.url = url
 
     async def send_batch(self, tracks: List[Dict[str, Any]]):
-        """
-        Envoie les artistes puis les titres en lot au service Catalog.
-        Respecte la séparation Artist / Track du schéma GraphQL.
-        """
-        if not tracks:
-            return
+        if not tracks: return
 
-        # 1. Préparer les artistes uniques
-        # On utilise l'ID de l'artiste principal comme ID unique
         artists_map = {}
         for t in tracks:
-            if t['artists']:
+            if t.get('artists'):
                 main_artist = t['artists'][0]
                 a_id = main_artist['id']
                 if a_id not in artists_map:
                     artists_map[a_id] = {
                         "artist_id": a_id,
                         "name": main_artist['name'],
-                        "genres": [] # L'API track ne donne pas les genres, on envoie vide pour l'instant
+                        "genres": []
                     }
-
         artists_list = list(artists_map.values())
         
-        # 2. Envoyer les artistes (add_many_artists)
-        # Mutation: add_many_artists(artists_list: [ArtistInput!]!): String
         mutation_artists = """
         mutation AddManyArtists($list: [ArtistInput!]!) {
             add_many_artists(artists_list: $list)
         }
         """
-        
         if artists_list:
-            logger.info(f"Envoi de {len(artists_list)} artistes...")
             await self._send_graphql(mutation_artists, {"list": artists_list})
 
-        # 3. Préparer les tracks
-        # Input TrackInput: { track_id, title, artist_id, album_name, release_date }
         tracks_input = []
         for t in tracks:
-            artist_id = t['artists'][0]['id'] if t['artists'] else "unknown"
-            tracks_input.append({
-                "track_id": t['id'],
-                "title": t['name'],
-                "artist_id": artist_id,
-                "album_name": t['album']['name'],
-                "release_date": t['album']['release_date']
-            })
+            if t.get('artists') and t.get('album'):
+                artist_id = t['artists'][0]['id']
+                tracks_input.append({
+                    "track_id": t['id'],
+                    "title": t['name'],
+                    "artist_id": artist_id,
+                    "album_name": t['album']['name'],
+                    "release_date": t['album']['release_date']
+                })
 
-        # 4. Envoyer les tracks (add_many_tracks)
-        # Mutation: add_many_tracks(tracks_list: [TrackInput!]!): String
         mutation_tracks = """
         mutation AddManyTracks($list: [TrackInput!]!) {
             add_many_tracks(tracks_list: $list)
         }
         """
-        
         if tracks_input:
-            logger.info(f"Envoi de {len(tracks_input)} titres...")
             await self._send_graphql(mutation_tracks, {"list": tracks_input})
 
     async def _send_graphql(self, query: str, variables: Dict[str, Any]):
@@ -152,76 +206,87 @@ class CatalogClient:
             try:
                 payload = {"query": query, "variables": variables}
                 response = await client.post(self.url, json=payload, timeout=30.0)
-                
-                if response.status_code != 200:
-                    logger.error(f"Erreur HTTP Catalog ({response.status_code}): {response.text}")
-                    return
-
-                result = response.json()
-                if "errors" in result:
-                    logger.error(f"Erreur GraphQL: {result['errors']}")
-                else:
-                    logger.info("Lot envoyé avec succès.")
-
-            except httpx.HTTPError as e:
-                logger.error(f"Erreur de connexion au Catalog: {e}")
             except Exception as e:
-                logger.error(f"Erreur inattendue: {e}")
+                logger.error(f"Catalog Connection Error: {e}")
 
-async def run_cycle():
-    """Exécute un cycle complet d'ingestion."""
-    logger.info("Début du cycle d'ingestion.")
-    
-    spotify = SpotifyClient(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
-    catalog = CatalogClient(CATALOG_URL)
+# --- Instances Globales ---
+spotify_client = SpotifyClient(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+catalog_client = CatalogClient(CATALOG_URL)
 
+# --- Background Task ---
+async def ingest_artist_data(artist_name: str):
+    logger.info(f"[Background] Ingestion pour l'artiste: {artist_name}")
     try:
-        # 1. Authentification
-        await spotify.authenticate()
-
-        # 2. Récupération des playlists
-        tasks = [
-            spotify.get_playlist_tracks(PLAYLIST_FRANCE),
-            spotify.get_playlist_tracks(PLAYLIST_GLOBAL)
-        ]
-        results = await asyncio.gather(*tasks)
-        
-        tracks_france = results[0]
-        tracks_global = results[1]
-        
-        logger.info(f"Récupéré {len(tracks_france)} titres France et {len(tracks_global)} titres Global.")
-
-        # 3. Fusion (dédoublonnage)
-        all_tracks_map = {t['id']: t for t in (tracks_france + tracks_global)}
-        all_tracks = list(all_tracks_map.values())
-
-        # 4. Envoi groupé
-        await catalog.send_batch(all_tracks)
-
+        tracks = await spotify_client.search_artist_top_tracks(artist_name)
+        if tracks:
+            await catalog_client.send_batch(tracks)
     except Exception as e:
-        logger.critical(f"Erreur critique durant le cycle: {e}")
+        logger.error(f"[Background] Erreur ingestion {artist_name}: {e}")
 
-    logger.info("Cycle terminé.")
-
-async def main():
-    """Boucle principale."""
-    if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
-        logger.error("Variables d'environnement SPOTIFY_CLIENT_ID ou SPOTIFY_CLIENT_SECRET manquantes.")
-        return
-
-    logger.info("Service Ingestion démarré. Fréquence: 1h.")
-
+async def daemon_loop():
+    logger.info("Démarrage du Daemon Loop.")
     while True:
-        start_time = time.time()
-        
-        await run_cycle()
-        
-        # Calcul du temps de sommeil restant
-        elapsed = time.time() - start_time
-        sleep_time = max(0, 3600 - elapsed)
-        
-        logger.info(f"Mise en veille pour {int(sleep_time)} secondes...")
-        await asyncio.sleep(sleep_time)
+        try:
+            await spotify_client.get_valid_token()
+            tasks = [
+                spotify_client.get_playlist_tracks(PLAYLIST_FRANCE),
+                spotify_client.get_playlist_tracks(PLAYLIST_GLOBAL)
+            ]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            all_tracks = []
+            for res in results:
+                if isinstance(res, list): all_tracks.extend(res)
+            
+            unique_tracks = {t['id']: t for t in all_tracks}.values()
+            if unique_tracks:
+                await catalog_client.send_batch(list(unique_tracks))
+        except Exception as e:
+            logger.error(f"[Daemon] Erreur: {e}")
+        await asyncio.sleep(3600)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(daemon_loop())
+
+# --- API Endpoints ---
+
+class IngestUserRequest(BaseModel):
+    identifier: str
+
+@app.post("/ingest/user")
+async def ingest_user_profile(req: IngestUserRequest, background_tasks: BackgroundTasks):
+    """
+    Accepte un ID Spotify OU une URL de profil (https://open.spotify.com/user/...)
+    Extrait l'ID et lance l'ingestion.
+    """
+    raw_input = req.identifier
+    logger.info(f"Reçu demande ingestion: {raw_input}")
+
+    # Extraction ID via Regex
+    # Supporte: 
+    # - https://open.spotify.com/user/1123456789
+    # - spotify:user:1123456789
+    # - 1123456789 (brut)
+    spotify_id = raw_input
+    
+    match_url = re.search(r'user/([a-zA-Z0-9]+)', raw_input)
+    if match_url:
+        spotify_id = match_url.group(1)
+    
+    match_uri = re.search(r'spotify:user:([a-zA-Z0-9]+)', raw_input)
+    if match_uri:
+        spotify_id = match_uri.group(1)
+
+    logger.info(f"ID extrait: {spotify_id}")
+
+    # Récupération
+    top_artists = await spotify_client.get_user_public_playlists_artists(spotify_id)
+    
+    if not top_artists:
+        return {"status": "not_found_or_empty", "resolved_id": spotify_id, "artists": []}
+
+    # Background ingestion
+    for artist in top_artists:
+        background_tasks.add_task(ingest_artist_data, artist)
+    
+    return {"status": "processing", "resolved_id": spotify_id, "artists": top_artists}
