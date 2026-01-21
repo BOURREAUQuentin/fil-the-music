@@ -8,47 +8,52 @@ import (
 	"github.com/BOURREAUQuentin/game/internal/core/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *GameServer) JoinQuiz(ctx context.Context, req *pb.JoinQuizRequest) (*pb.JoinQuizResponse, error) {
-	// Validate quiz_id format
+	// 1. Get user ID from gRPC metadata (trusted from gateway)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.DataLoss, "metadata is not provided")
+	}
+
+	userIDValues := md.Get("x-user-id")
+	if len(userIDValues) == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, "user ID is not provided in metadata")
+	}
+	userID := userIDValues[0]
+
+	// 2. Validate quiz_id format
 	_, err := primitive.ObjectIDFromHex(req.QuizId)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to parse quiz ID: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid quiz ID format: %v", err)
 	}
 
-	user, err := s.UserRepo.GetUserById(ctx, req.UserId)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
-	}
-
-	// Verify quiz_id existence
+	// 3. Verify quiz existence
 	quiz, err := s.QuizRepo.FindQuizByID(ctx, req.QuizId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
 	}
-
 	if quiz == nil {
 		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", req.QuizId)
 	}
-	if user == nil {
-		return nil, status.Errorf(codes.NotFound, "user with ID %s not found", req.UserId)
-	}
 
-	// Check if user already has an active session
-	existingSession, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	// 4. Check if user already has an active session
+	existingSession, err := s.SessionRepo.GetSessionByUserId(ctx, userID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to check existing session: %v", err)
 	}
 	if existingSession != nil {
-		return nil, status.Errorf(codes.AlreadyExists, "user %s already has an active session", req.UserId)
+		return nil, status.Errorf(codes.AlreadyExists, "user %s already has an active session", userID)
 	}
 
+	// 5. Create the session
 	now := time.Now()
 	session := &domain.Session{
-		UserId:       req.UserId,
+		UserId:       userID, // Use ID from metadata
 		QuizId:       req.QuizId,
 		JoinedAt:     now,
 		LastActivity: now,
@@ -71,37 +76,44 @@ func (s *GameServer) JoinQuiz(ctx context.Context, req *pb.JoinQuizRequest) (*pb
 }
 
 func (s *GameServer) QuitQuiz(ctx context.Context, req *pb.QuitQuizRequest) (*pb.QuitQuizResponse, error) {
-	// Validate quiz_id format
+	// 1. Get user ID from gRPC metadata (trusted from gateway)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.DataLoss, "metadata is not provided")
+	}
+	userIDValues := md.Get("x-user-id")
+	if len(userIDValues) == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, "user ID is not provided in metadata")
+	}
+	userID := userIDValues[0]
+
+	// 2. Validate quiz_id format
 	_, err := primitive.ObjectIDFromHex(req.QuizId)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to parse quiz ID: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "failed to parse quiz ID: %v", err)
 	}
 
-	user, err := s.UserRepo.GetUserById(ctx, req.UserId)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to retrieve user: %v", err)
-	}
-
-	// Verify quiz_id existence
+	// 3. Verify quiz existence (optional but good practice)
 	quiz, err := s.QuizRepo.FindQuizByID(ctx, req.QuizId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
 	}
-
 	if quiz == nil {
 		return nil, status.Errorf(codes.NotFound, "quiz with ID %s not found", req.QuizId)
 	}
-	if user == nil {
-		return nil, status.Errorf(codes.NotFound, "user with ID %s not found", req.UserId)
-	}
 
+	// 4. Delete the session for the authenticated user
 	session := &domain.Session{
-		UserId: req.UserId,
+		UserId: userID,
 		QuizId: req.QuizId,
 	}
 
 	err = s.SessionRepo.DeleteSession(ctx, session)
 	if err != nil {
+		// Consider the case where the session does not exist as a success for idempotency
+		if err.Error() == "mongo: no documents in result" {
+			return &pb.QuitQuizResponse{Success: true}, nil
+		}
 		return nil, status.Errorf(codes.Internal, "failed to delete session: %v", err)
 	}
 
@@ -132,14 +144,27 @@ func (s *GameServer) GetSessions(ctx context.Context, req *pb.GetSessionsRequest
 }
 
 func (s *GameServer) GetActiveQuiz(ctx context.Context, req *pb.GetActiveQuizRequest) (*pb.GetActiveQuizResponse, error) {
-	session, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	// 1. Get user ID from gRPC metadata (trusted from gateway)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.DataLoss, "metadata is not provided")
+	}
+	userIDValues := md.Get("x-user-id")
+	if len(userIDValues) == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, "user ID is not provided in metadata")
+	}
+	userID := userIDValues[0]
+
+	// 2. Find session using the authenticated user ID
+	session, err := s.SessionRepo.GetSessionByUserId(ctx, userID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to retrieve session: %v", err)
 	}
 	if session == nil {
-		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", req.UserId)
+		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", userID)
 	}
 
+	// 3. Find the associated quiz
 	quiz, err := s.QuizRepo.FindQuizByID(ctx, session.QuizId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
@@ -161,14 +186,27 @@ func (s *GameServer) GetActiveQuiz(ctx context.Context, req *pb.GetActiveQuizReq
 }
 
 func (s *GameServer) AnswerQuestions(ctx context.Context, req *pb.AnswerQuestionsRequest) (*pb.AnswerQuestionsResponse, error) {
-	session, err := s.SessionRepo.GetSessionByUserId(ctx, req.UserId)
+	// 1. Get user ID from gRPC metadata (trusted from gateway)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.DataLoss, "metadata is not provided")
+	}
+	userIDValues := md.Get("x-user-id")
+	if len(userIDValues) == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, "user ID is not provided in metadata")
+	}
+	userID := userIDValues[0]
+
+	// 2. Find the user's active session
+	session, err := s.SessionRepo.GetSessionByUserId(ctx, userID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to retrieve session: %v", err)
 	}
 	if session == nil {
-		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", req.UserId)
+		return nil, status.Errorf(codes.NotFound, "no active session found for user %s", userID)
 	}
 
+	// 3. Find the quiz associated with the session
 	quiz, err := s.QuizRepo.FindQuizByID(ctx, session.QuizId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to retrieve quiz: %v", err)
@@ -181,6 +219,7 @@ func (s *GameServer) AnswerQuestions(ctx context.Context, req *pb.AnswerQuestion
 		return nil, status.Errorf(codes.InvalidArgument, "number of answers (%d) does not match number of questions (%d)", len(req.Answers), len(quiz.Questions))
 	}
 
+	// 4. Calculate score
 	var score int32
 	var results []*pb.QuestionResult
 
@@ -200,7 +239,7 @@ func (s *GameServer) AnswerQuestions(ctx context.Context, req *pb.AnswerQuestion
 		})
 	}
 
-	// Delete session after quiz completion
+	// 5. Delete session after quiz completion
 	s.SessionRepo.DeleteSession(ctx, session)
 
 	return &pb.AnswerQuestionsResponse{

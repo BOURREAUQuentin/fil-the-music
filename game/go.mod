@@ -3,6 +3,7 @@ module github.com/BOURREAUQuentin/game
 go 1.25.5
 
 require (
+	github.com/machinebox/graphql v0.2.2
 	go.mongodb.org/mongo-driver v1.17.6
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
@@ -11,7 +12,7 @@ require (
 require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
-	github.com/machinebox/graphql v0.2.2 // indirect
+	github.com/matryer/is v1.4.1 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

@@ -5,8 +5,9 @@ import path from 'path';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { authenticateToken, authorizeRole } from './auth'; // Import auth middlewares
 
 dotenv.config();
 
@@ -27,74 +28,51 @@ app.use(limiter);
 
 const SERVICES = {
   USER: process.env.USER_SERVICE_URL || 'http://user:3201',
-  GAME_GRPC: process.env.GAME_SERVICE_URL || 'game_service:50051'
+  GAME_GRPC: process.env.GAME_SERVICE_URL || 'game:50051',
 };
 
 console.log('🔧 Services configuration:', SERVICES);
 
-// Configure USER service
+// Configure USER service proxy (for login/register)
 app.use('/api/users', createProxyMiddleware({
   target: SERVICES.USER,
   changeOrigin: true,
   pathRewrite: {
-    '^/api/users': ''
+    '^/api/users': '',
   },
-  on: {
-    proxyReq: (proxyReq, req, res) => {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`[PROXY DEBUG - USER]`);
-      console.log(`  Method: ${req.method}`);
-      console.log(`  req.originalUrl: ${(req as any).originalUrl}`);
-      console.log(`  Target: ${SERVICES.USER}${proxyReq.path}`);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    },
-    proxyRes: (proxyRes, req, res) => {
-      console.log(`[PROXY RESPONSE - USER] Status: ${proxyRes.statusCode}`);
-    },
-    error: (err, req, res) => {
-      console.error('[PROXY ERROR]', err.message);
-      if (res && 'writeHead' in res) {
-        res.writeHead(502, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          error: 'Gateway error',
-          message: err.message
-        }));
-      }
-    }
-  }
 }));
-
-app.use(express.json());
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    services: SERVICES 
+  res.json({
+    status: 'ok',
+    services: SERVICES,
   });
 });
 
-// Configure GAME service
+app.use(express.json());
+
+// Configure GAME service gRPC Client
 const PROTO_PATH = path.join(__dirname, '../proto/game.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,
   enums: String,
   defaults: true,
-  oneofs: true
+  oneofs: true,
 });
 
 const grpcObject = grpc.loadPackageDefinition(packageDefinition) as any;
-const gameProto = grpcObject.user.v1;
+const gameProto = grpcObject.user.v1; // Adjusted to match the package name in proto
 const gameClient = new gameProto.GameService(
   SERVICES.GAME_GRPC,
   grpc.credentials.createInsecure()
 );
 
-// Helper for gRPC async/await
-const grpcCall = (method: Function, payload: any): Promise<any> => {
+// Helper for gRPC async/await with metadata
+const grpcCall = (method: Function, payload: any, metadata: grpc.Metadata): Promise<any> => {
   return new Promise((resolve, reject) => {
-    method.call(gameClient, payload, (err: any, response: any) => {
+    method.call(gameClient, payload, metadata, (err: grpc.ServiceError, response: any) => {
       if (err) reject(err);
       else resolve(response);
     });
@@ -105,56 +83,85 @@ const grpcCall = (method: Function, payload: any): Promise<any> => {
 const gameRouter = express.Router();
 
 type HttpMethod = 'get' | 'post';
+type AuthLevel = 'NONE' | 'USER' | 'ADMIN';
 
 interface GrpcRouteDefinition {
   path: string;
   method: HttpMethod;
-  grpcAction: string; 
+  grpcAction: string;
+  authLevel: AuthLevel;
 }
 
+// Define which routes are protected and by which role
 const GRPC_ROUTES: GrpcRouteDefinition[] = [
-  { path: '/quizzes', method: 'get', grpcAction: 'GetQuizzes' },
-  { path: '/quizzes', method: 'post', grpcAction: 'CreateQuiz' },
-  { path: '/sessions', method: 'get', grpcAction: 'GetSessions' },
-  { path: '/join', method: 'post', grpcAction: 'JoinQuiz' },
-  { path: '/quit', method: 'post', grpcAction: 'QuitQuiz' },
-  { path: '/active', method: 'get', grpcAction: 'GetActiveQuiz' },
-  { path: '/answer', method: 'post', grpcAction: 'AnswerQuestions' },
-  { path: '/start/random', method: 'post', grpcAction: 'StartRandomQuiz' },
-  { path: '/start/genre', method: 'post', grpcAction: 'StartGenreQuiz' },
-  { path: '/start/foryou', method: 'post', grpcAction: 'StartForYouQuiz' },
+  // Admin routes
+  { path: '/quizzes/simple', method: 'post', grpcAction: 'CreateSimpleQuiz', authLevel: 'ADMIN' },
+  { path: '/sessions', method: 'get', grpcAction: 'GetSessions', authLevel: 'ADMIN' },
+
+  // User routes
+  { path: '/quizzes/custom', method: 'post', grpcAction: 'GenerateCustomQuiz', authLevel: 'USER' },
+  { path: '/quizzes/foryou', method: 'post', grpcAction: 'GenerateForYouQuiz', authLevel: 'USER' },
+  { path: '/games/start/:quizId', method: 'post', grpcAction: 'JoinQuiz', authLevel: 'USER' },
+  { path: '/answer', method: 'post', grpcAction: 'AnswerQuestions', authLevel: 'USER' }, // Assuming SubmitAnswers is the gRPC action
+  { path: '/quizzes', method: 'get', grpcAction: 'GetQuizzes', authLevel: 'USER' },
+  { path: '/active', method: 'get', grpcAction: 'GetActiveQuiz', authLevel: 'USER' },
+  { path: '/quit', method: 'post', grpcAction: 'QuitQuiz', authLevel: 'USER' },
 ];
 
-// Link routes to grpc actions
+// Link routes to gRPC actions with authentication
 GRPC_ROUTES.forEach(route => {
-  gameRouter[route.method](route.path, async (req, res) => {
+  const middlewares = [];
+
+  // Add authentication and authorization middlewares if the route is not public
+  if (route.authLevel !== 'NONE') {
+    middlewares.push(authenticateToken);
+    middlewares.push(authorizeRole(route.authLevel));
+  }
+
+  gameRouter[route.method](route.path, ...middlewares, async (req: Request, res: Response) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`[GAME GRPC DEBUG]`);
-    console.log(`  HTTP Request: ${req.method.toUpperCase()} ${req.originalUrl}`);
-    console.log(`  Mapped gRPC Action: ${route.grpcAction}`);
-    console.log(`  Payload sending to gRPC:`, JSON.stringify(req.body, null, 2));
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`[HTTP->GRPC] START: Handling ${req.method} ${req.originalUrl} -> ${route.grpcAction}`);
 
     try {
       const grpcMethod = gameClient[route.grpcAction];
       if (typeof grpcMethod !== 'function') {
-        console.error(`[GAME ERROR] Method ${route.grpcAction} not found on gRPC client`);
-        return res.status(500).json({ error: "Internal Server Error: Method not found" });
+        console.error(`[HTTP->GRPC ERROR] Method ${route.grpcAction} not found on gRPC client`);
+        return res.status(500).json({ error: 'Internal Server Error: Method not found' });
       }
 
-      const response = await grpcCall(grpcMethod, req.body);
+      // Prepare payload with correct field casing
+      const payload: { [key: string]: any } = { ...req.body };
+      if (req.params.quizId) {
+        payload.quiz_id = req.params.quizId;
+      }
       
-      console.log(`[GAME GRPC RESPONSE] Success`);
+      const metadata = new grpc.Metadata();
       
+      // If user is authenticated, pass their info in metadata
+      if (req.user) {
+        metadata.add('x-user-id', req.user.id);
+        metadata.add('x-user-role', req.user.role);
+      }
+
+      console.log(`[HTTP->GRPC] Preparing to call gRPC method: ${route.grpcAction}`);
+      console.log('[HTTP->GRPC] Payload:', JSON.stringify(payload, null, 2));
+      console.log('[HTTP->GRPC] Metadata:', JSON.stringify(metadata.getMap(), null, 2));
+
+      const response = await grpcCall(grpcMethod, payload, metadata);
+      
+      console.log(`[HTTP->GRPC] SUCCESS: gRPC call for ${route.grpcAction} completed.`);
       res.json(response);
     } catch (err: any) {
-      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.error(`[GAME GRPC ERROR]`);
-      console.error(`  Action: ${route.grpcAction}`);
-      console.error(`  Message:`, err.details || err.message || err);
-      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error(`[HTTP->GRPC] FATAL ERROR during gRPC call for action: ${route.grpcAction}`);
+      console.error('[HTTP->GRPC] Full Error Object:', JSON.stringify(err, null, 2));
       
-      res.status(500).json(err);
+      const statusCode = err.code === grpc.status.UNAUTHENTICATED ? 401 : err.code === grpc.status.PERMISSION_DENIED ? 403 : 502;
+      res.status(statusCode).json({
+        error: 'gRPC call failed',
+        grpc_code: err.code,
+        grpc_details: err.details,
+        message: err.message,
+      });
     }
   });
 });
