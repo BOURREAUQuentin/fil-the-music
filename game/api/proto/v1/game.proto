@@ -19,15 +19,12 @@ service GameService {
 }
 
 message StartForYouQuizRequest {
-  string user_id = 1;
 }
 
 message StartRandomQuizRequest {
-  string user_id = 1;
 }
 
 message StartGenreQuizRequest {
-  string user_id = 1;
   string genre = 2;
 }
 
@@ -43,7 +40,6 @@ message GetQuizzesResponse {
 }
 
 message AnswerQuestionsRequest {
-  string user_id = 1;
   repeated int32 answers = 2;
 }
 
@@ -60,7 +56,6 @@ message QuestionResult {
 }
 
 message GetActiveQuizRequest {
-  string user_id = 1;
 }
 
 message GetActiveQuizResponse {
@@ -96,7 +91,6 @@ message JoinQuizResponse {
 }
 
 message QuitQuizRequest {
-  string user_id = 1;
   string quiz_id = 2;
 }
 
