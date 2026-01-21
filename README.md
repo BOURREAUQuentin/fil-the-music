@@ -1,8 +1,8 @@
-# 🎵 Projet Quiz Musical - Architecture Micro-services
+# Projet Quiz Musical - Architecture Micro-services
 
 Application de quiz musical permettant de tester ses connaissances sur la musique à travers une architecture micro-services moderne.
 
-## 📋 Présentation du Projet
+## Présentation du Projet
 
 ### Principe
 
@@ -14,19 +14,19 @@ Un quiz est composé d'une suite de questions avec une seule bonne réponse par 
 
 ### Types de Quiz
 
-#### 🔐 Quiz Simple (Admin uniquement)
+#### Quiz Simple (Admin uniquement)
 - Questions et réponses entièrement personnalisables
 - Contenu défini manuellement par l'administrateur
 - Pas de vérification automatique des données
 - Liberté totale sur le contenu
 
-#### 🎨 Quiz Personnalisé (Utilisateurs)
+#### Quiz Personnalisé (Utilisateurs)
 - Filtrage par genre musical
 - Questions générées aléatoirement depuis le Catalogue
 - Basé sur les données Spotify (artistes, morceaux, dates)
 - Création automatisée accessible à tous
 
-#### 💝 Quiz "For You" (Utilisateurs)
+#### Quiz "For You" (Utilisateurs)
 - Personnalisé selon les préférences de l'utilisateur
 - Basé sur les artistes favoris de l'utilisateur
 - Questions générées depuis le Catalogue
@@ -34,24 +34,24 @@ Un quiz est composé d'une suite de questions avec une seule bonne réponse par 
 
 ### Actions Utilisateur
 
-#### 👨‍💼 Admin
+#### Admin
 - Créer des quiz simples avec contenu libre
 - Créer et gérer les utilisateurs
 - Gérer le catalogue musical
 
-#### 👤 User
+#### User
 - Répondre à tous types de quiz (simple, personnalisé, "for you")
 - Créer des quiz personnalisés basés sur le Catalogue
 - Consulter les scores obtenus
 - Accéder à l'historique complet des quiz effectués
 - Rejouer n'importe quel quiz autant de fois que souhaité
 
-## 🏗️ Architecture Globale
+## Architecture Globale
 
 ```
 Client / Insomnia
        ↓
-Interface REST (TypeScript)
+Gateway REST (TypeScript)
        ↓
    ┌───┴───┬───────┐
    ↓       ↓       ↓
@@ -65,7 +65,7 @@ Service  Service  Service
 
 L'application suit une architecture micro-services avec 5 services principaux communiquant via différents protocoles (REST, GraphQL, gRPC).
 
-## 🔧 Services
+## Services
 
 ### 1. Service Ingestion (Python)
 
@@ -124,7 +124,7 @@ L'application suit une architecture micro-services avec 5 services principaux co
   - Création de questions depuis le Catalogue
   - Communication haute performance via gRPC
 
-### 5. Interface REST (TypeScript)
+### 5. Gateway REST (TypeScript)
 
 **Type**: REST API Gateway  
 **Rôle**: Point d'entrée unique pour les clients
@@ -135,7 +135,7 @@ L'application suit une architecture micro-services avec 5 services principaux co
 - Gestion de l'authentification et validation des tokens
 - Exposition d'une API REST unifiée
 
-## 🗄️ Bases de Données
+## Bases de Données
 
 L'application utilise **3 bases MongoDB indépendantes**:
 
@@ -154,20 +154,20 @@ L'application utilise **3 bases MongoDB indépendantes**:
 - **Collection Quizz**: Quiz disponibles, questions et réponses
 - **Collection Game**: Historique des parties et scores
 
-## 🛠️ Technologies Utilisées
+## Technologies Utilisées
 
 ### Langages
 - **Python**: Services Ingestion et Catalogue
-- **TypeScript**: Services Interface et User
+- **TypeScript**: Services Gateway et User
 - **Go**: Service Game Engine
 
 ### Frameworks
-- **Python**: FastAPI (Ingestion), Strawberry GraphQL (Catalogue)
-- **TypeScript**: Express.js ou Fastify (Interface et User)
+- **Python**: FastAPI (Ingestion), GraphQL natif (Catalogue)
+- **TypeScript**: Express.js (Gateway et User)
 - **Go**: gRPC natif (Game Engine)
 
 ### Protocoles
-- **REST**: Interface, User, Ingestion
+- **REST**: Gateway, User, Ingestion
 - **GraphQL**: Catalogue
 - **gRPC**: Game Engine
 
@@ -177,36 +177,7 @@ L'application utilise **3 bases MongoDB indépendantes**:
 ### API Externe
 - **Spotify API**: Source des données musicales (OAuth)
 
-## 🎮 Flux Utilisateur
-
-### Parcours Admin
-
-1. Connexion via l'Interface REST
-2. Création d'un quiz simple:
-   - Définir un titre
-   - Ajouter des questions manuellement
-   - Définir plusieurs réponses possibles + la bonne réponse
-   - Sauvegarde dans la Collection Quizz
-3. Gestion des utilisateurs et du catalogue
-
-### Parcours User
-
-1. Connexion via l'Interface REST
-2. Création d'un quiz personnalisé:
-   - Sélection des paramètres (nombre de questions, thèmes)
-   - Génération automatique depuis le Catalogue
-   - Sauvegarde du quiz
-3. Jouer à un quiz:
-   - Consulter la liste des quiz disponibles
-   - Lancer un quiz (nouveau ou déjà effectué)
-   - Répondre aux questions
-   - Obtenir un score final
-4. Consulter l'historique:
-   - Liste des quiz effectués
-   - Scores pour chaque tentative
-   - Statistiques personnelles
-
-## 🚀 Installation et Lancement
+## Installation et Lancement
 
 ### Prérequis
 - Docker et Docker Compose installés
@@ -216,12 +187,12 @@ L'application utilise **3 bases MongoDB indépendantes**:
 
 ```bash
 # Cloner le repository
-git clone [URL_DU_REPO]
-cd quiz-musical
+git clone https://github.com/BOURREAUQuentin/fil-the-music.git
+cd fil-the-music
 
-# Configurer les variables d'environnement
+# Configurer les variables d'environnement dans ingestion et user
 cp .env.example .env
-# Éditer .env et ajouter votre token Spotify
+# Éditer .env et ajouter les informations manquantes
 
 # Lancer l'environnement Docker
 docker-compose up --build
@@ -231,43 +202,52 @@ docker-compose up --build
 
 L'API est accessible sur `http://localhost:8000`
 
-## 📦 Tests
+## Tests
 
-Un export Insomnia est fourni pour tester l'ensemble des endpoints:
+Des exports Insomnia sont mis à disposition pour faciliter le test des endpoints :
+- **Global :** Un export complet est disponible à la racine du projet.
+- **Spécifique :** Chaque dossier de service contient son propre export dédié.
 
-### Collections de tests
+### Configuration du Service User
 
-#### Admin
-- Création d'utilisateurs
-- Création de quiz simples
+Pour tester ce service, une configuration spécifique de l'environnement est requise afin de gérer les droits d'accès.
 
-#### User
-- Authentification
-- Création de quiz personnalisés
-- Jouer à un quiz
-- Consulter l'historique
+**1. Obtention des tokens**
 
-#### Catalogue
-- Requêtes GraphQL pour rechercher artistes/morceaux
+Veuillez suivre cet ordre d'exécution pour récupérer les tokens nécessaires :
+1. Se connecter en tant qu'**Utilisateur** (récupérer le `user_token`).
+2. Se connecter en tant qu'**Administrateur** (récupérer l'`admin_token`).
 
-## 🐳 Dockerisation
+**2. Variables d'environnement**
+
+Dans Insomnia, configurez les variables d'environnement suivantes :
+
+| Variable      | Valeur / Description                                   |
+| :------------ | :----------------------------------------------------- |
+| `base_url`    | `http://localhost:3201`                                |
+| `admin_token` | Token obtenu à l'étape connexion admin                 |
+| `user_token`  | Token obtenu à l'étape connexion user                  |
+| `admin_id`    | ID de l'administrateur                                 |
+| `user_id`     | ID de l'utilisateur                                    |
+
+## Dockerisation
 
 L'application est entièrement containerisée:
 - 5 conteneurs pour les micro-services
 - 3 conteneurs MongoDB
 - Docker Compose pour l'orchestration
 
-## 👥 Équipe
+## Équipe
 
-Projet réalisé par un groupe de 4 élèves dans le cadre du cours de micro-services.
+Projet réalisé par un groupe de 4 élèves dans le cadre du cours d'Architectures Distribuées.
 
-## 📝 Notes Techniques
+## Notes Techniques
 
-- **Communication inter-services**: REST, GraphQL, gRPC selon les besoins
+- **Communication inter-services**: REST, GraphQL, gRPC
 - **Scalabilité**: Architecture pensée pour être facilement extensible
 - **Performance**: Utilisation de gRPC pour les opérations critiques (Game Engine)
 
-## 📄 Licence
+## Licence
 
 Ce projet est réalisé dans un cadre académique.
 
