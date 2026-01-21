@@ -206,29 +206,53 @@ L'API est accessible sur `http://localhost:8000`
 
 Des exports Insomnia sont mis à disposition pour faciliter le test des endpoints :
 - **Global :** Un export complet est disponible à la racine du projet.
-- **Spécifique :** Chaque dossier de service contient son propre export dédié.
+- **Spécifique :** Plusieurs dossiers de services (Catalog, Game, User) contiennent leur propre export dédié.
 
-### Configuration du Service User
+### Configuration spécifique du Service User
 
-Pour tester ce service, une configuration spécifique de l'environnement est requise afin de gérer les droits d'accès.
+Pour tester ce service, une préparation spécifique est nécessaire, notamment pour l'administrateur (gestion du hachage de mot de passe) et la création de l'utilisateur.
 
-**1. Obtention des tokens**
+#### 1. Pré-requis : Initialisation Admin
+Le mot de passe de l'administrateur présent en base de données doit être correctement haché (bcrypt). Un script utilitaire est fourni pour définir le mot de passe de l'admin à `admin123`.
 
-Veuillez suivre cet ordre d'exécution pour récupérer les tokens nécessaires :
-1. Se connecter en tant qu'**Utilisateur** (récupérer le `user_token`).
-2. Se connecter en tant qu'**Administrateur** (récupérer l'`admin_token`).
+Exécutez les commandes suivantes dans votre terminal :
 
-**2. Variables d'environnement**
+```bash
+# 1. Démarrer les conteneurs
+docker-compose up -d
 
-Dans Insomnia, configurez les variables d'environnement suivantes :
+# 2. Entrer dans le conteneur du service User
+docker compose exec user sh
 
-| Variable      | Valeur / Description                                   |
-| :------------ | :----------------------------------------------------- |
-| `base_url`    | `http://localhost:3201`                                |
-| `admin_token` | Token obtenu à l'étape connexion admin                 |
-| `user_token`  | Token obtenu à l'étape connexion user                  |
-| `admin_id`    | ID de l'administrateur                                 |
-| `user_id`     | ID de l'utilisateur                                    |
+# 3. Lancer le script de mise à jour du mot de passe
+npx ts-node src/help/setAdminPassword.ts
+```
+
+✅ Note : Une fois le script terminé ("Password updated : admin123"), le mot de passe de l'admin sera `admin123`.
+
+#### 2. Workflow de connexion
+
+Une fois le pré-requis validé, suivez cet ordre pour obtenir vos tokens :
+
+Utilisateur Standard :
+- Créer un utilisateur via la route `register`.
+- Se connecter via la route `login` pour récupérer le `user_token` et le `user_id`.
+
+Administrateur :
+- Se connecter via la route `login` (avec le mot de passe `admin123`) pour récupérer l'`admin_token` et l'`admin_id`.
+
+#### 3. Variables d'environnement Insomnia
+Dans Insomnia, configurez les variables d'environnement suivantes avec les données récoltées :
+
+| Variable      | Valeur / Description                                    |
+| :------------ |:--------------------------------------------------------|
+| `base_url`    | `http://localhost:3201`                                 |
+| `admin_token` | Token obtenu à l'étape connexion admin                  |
+| `user_token`  | Token obtenu à l'étape connexion user                   |
+| `admin_id`    | ID de l'administrateur obtenu à l'étape connexion admin |
+| `user_id`     | ID de l'utilisateur obtenu à l'étape connexion user     |
+
+Vous pouvez maintenant tester les endpoints protégés en utilisant les tokens appropriés.
 
 ## Dockerisation
 
