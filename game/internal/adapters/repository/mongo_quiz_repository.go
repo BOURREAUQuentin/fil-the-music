@@ -101,3 +101,14 @@ func (r *MongoQuizRepository) CreateQuiz(ctx context.Context, quiz *domain.Quiz)
 
 	return nil
 }
+
+func (r *MongoQuizRepository) DeleteQuiz(ctx context.Context, id string) error {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"_id": objID}
+	_, err = r.quizCollection.DeleteOne(ctx, filter)
+	return err
+}
