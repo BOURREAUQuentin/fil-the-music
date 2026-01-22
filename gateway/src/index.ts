@@ -95,13 +95,15 @@ interface GrpcRouteDefinition {
 // Define which routes are protected and by which role
 const GRPC_ROUTES: GrpcRouteDefinition[] = [
   // Admin routes
-  { path: '/quizzes/simple', method: 'post', grpcAction: 'CreateSimpleQuiz', authLevel: 'ADMIN' },
+  { path: '/create/simple', method: 'post', grpcAction: 'CreateQuiz', authLevel: 'ADMIN' },
   { path: '/sessions', method: 'get', grpcAction: 'GetSessions', authLevel: 'ADMIN' },
 
   // User routes
-  { path: '/quizzes/custom', method: 'post', grpcAction: 'GenerateCustomQuiz', authLevel: 'USER' },
-  { path: '/quizzes/foryou', method: 'post', grpcAction: 'GenerateForYouQuiz', authLevel: 'USER' },
-  { path: '/games/start/:quizId', method: 'post', grpcAction: 'JoinQuiz', authLevel: 'USER' },
+  { path: '/start/genre', method: 'post', grpcAction: 'StartGenreQuiz', authLevel: 'USER' },
+  { path: '/start/foryou', method: 'post', grpcAction: 'StartForYouQuiz', authLevel: 'USER' },
+  { path: '/start/random', method: 'post', grpcAction: 'StartRandomQuiz', authLevel: 'USER' },
+
+  { path: '/start/:quizId', method: 'post', grpcAction: 'JoinQuiz', authLevel: 'USER' },
   { path: '/answer', method: 'post', grpcAction: 'AnswerQuestions', authLevel: 'USER' }, // Assuming SubmitAnswers is the gRPC action
   { path: '/quizzes', method: 'get', grpcAction: 'GetQuizzes', authLevel: 'USER' },
   { path: '/active', method: 'get', grpcAction: 'GetActiveQuiz', authLevel: 'USER' },

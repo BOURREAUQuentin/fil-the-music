@@ -86,7 +86,7 @@ func (r *GraphQLCatalogRepository) GetQuestionsByArtists(artists []string, limit
 	// 1. Fetch specific tracks via GraphQL
 	req := graphql.NewRequest(`
 		query ($artists: [String]!, $limit: Int!) {
-			questionsByArtists(artists: $artists, limit: $limit) {
+			questions_by_artists(artists: $artists, limit: $limit) {
 				track_id
 				title
 				artist_id
@@ -97,7 +97,7 @@ func (r *GraphQLCatalogRepository) GetQuestionsByArtists(artists []string, limit
 	req.Var("limit", limit)
 
 	var resp struct {
-		Tracks []TrackDTO `json:"questionsByArtists"`
+		Tracks []TrackDTO `json:"questions_by_artists"`
 	}
 
 	// Execute GraphQL request

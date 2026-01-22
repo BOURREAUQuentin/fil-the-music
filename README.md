@@ -195,7 +195,7 @@ cp .env.example .env
 # Éditer .env et ajouter les informations manquantes
 
 # Lancer l'environnement Docker
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 ### Accès
@@ -205,7 +205,7 @@ L'API est accessible sur `http://localhost:8000`
 ## Tests
 
 Des exports Insomnia sont mis à disposition pour faciliter le test des endpoints :
-- **Global :** Un export complet est disponible à la racine du projet.
+- **Global :** Un export complet est disponible à la racine du projet `Insomnia_global.yml`.
 - **Spécifique :** Plusieurs dossiers de services (Catalog, Game, User) contiennent leur propre export dédié.
 
 ### Configuration spécifique du Service User
@@ -219,7 +219,7 @@ Exécutez les commandes suivantes dans votre terminal :
 
 ```bash
 # 1. Démarrer les conteneurs
-docker-compose up -d
+docker-compose up --build -d
 
 # 2. Entrer dans le conteneur du service User
 docker compose exec user sh
