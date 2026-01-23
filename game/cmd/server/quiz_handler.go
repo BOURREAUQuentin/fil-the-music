@@ -108,6 +108,19 @@ func (s *GameServer) StartRandomQuiz(ctx context.Context, req *pb.StartRandomQui
 		return nil, err
 	}
 
+	// 4. Create Session (Join automatically)
+	s.cleanupOldSession(ctx, userID)
+
+	session := &domain.Session{
+		UserId:       userID,
+		QuizId:       quiz.ID,
+		JoinedAt:     time.Now(),
+		LastActivity: time.Now(),
+	}
+	if err := s.SessionRepo.CreateSession(ctx, session); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
+	}
+
 	return &pb.StartQuizResponse{
 		Quiz: &pb.Quiz{
 			Id:        quiz.ID,
@@ -152,6 +165,19 @@ func (s *GameServer) StartGenreQuiz(ctx context.Context, req *pb.StartGenreQuizR
 		return nil, err
 	}
 
+	// 4. Create Session (Join automatically)
+	s.cleanupOldSession(ctx, userID)
+
+	session := &domain.Session{
+		UserId:       userID,
+		QuizId:       quiz.ID,
+		JoinedAt:     time.Now(),
+		LastActivity: time.Now(),
+	}
+	if err := s.SessionRepo.CreateSession(ctx, session); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
+	}
+
 	return &pb.StartQuizResponse{
 		Quiz: &pb.Quiz{
 			Id:        quiz.ID,
@@ -190,7 +216,7 @@ func (s *GameServer) StartForYouQuiz(ctx context.Context, req *pb.StartForYouQui
 
 		// Fallback to Electro genre
 		questions, err = s.CatalogRepo.GetQuestionsByGenre("Electro", 10)
-		quizTitle = "Quiz Electro (Recommandé)"
+		quizTitle = "Quiz Electro (Fallback)"
 		quizType = "for_you_fallback"
 	} else {
 		// 4. Normal Flow: Get questions by artists
@@ -222,6 +248,19 @@ func (s *GameServer) StartForYouQuiz(ctx context.Context, req *pb.StartForYouQui
 		return nil, err
 	}
 
+	// 6. Create Session (Join automatically)
+	s.cleanupOldSession(ctx, userID)
+
+	session := &domain.Session{
+		UserId:       userID,
+		QuizId:       quiz.ID,
+		JoinedAt:     time.Now(),
+		LastActivity: time.Now(),
+	}
+	if err := s.SessionRepo.CreateSession(ctx, session); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create session: %v", err)
+	}
+
 	return &pb.StartQuizResponse{
 		Quiz: &pb.Quiz{
 			Id:        quiz.ID,
@@ -240,10 +279,9 @@ func mapQuestionsToPb(qs []domain.Question) []*pb.Question {
 	var pbQs []*pb.Question
 	for _, q := range qs {
 		pbQs = append(pbQs, &pb.Question{
-			QuestionId:         q.QuestionID,
-			Text:               q.Text,
-			Choices:            q.Choices,
-			CorrectAnswerIndex: q.CorrectAnswerIdx,
+			QuestionId: q.QuestionID,
+			Text:       q.Text,
+			Choices:    q.Choices,
 		})
 	}
 	return pbQs

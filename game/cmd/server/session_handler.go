@@ -117,6 +117,11 @@ func (s *GameServer) QuitQuiz(ctx context.Context, req *pb.QuitQuizRequest) (*pb
 		return nil, status.Errorf(codes.Internal, "failed to delete session: %v", err)
 	}
 
+	// Delete quiz if it was auto-generated
+	if quiz.Type == "random" || quiz.Type == "genre" || quiz.Type == "for_you" || quiz.Type == "for_you_fallback" {
+		_ = s.QuizRepo.DeleteQuiz(ctx, quiz.ID)
+	}
+
 	return &pb.QuitQuizResponse{
 		Success: true,
 	}, nil
@@ -241,6 +246,11 @@ func (s *GameServer) AnswerQuestions(ctx context.Context, req *pb.AnswerQuestion
 
 	// 5. Delete session after quiz completion
 	s.SessionRepo.DeleteSession(ctx, session)
+
+	// 6. Delete quiz if it was auto-generated
+	if quiz.Type == "random" || quiz.Type == "genre" || quiz.Type == "for_you" || quiz.Type == "for_you_fallback" {
+		_ = s.QuizRepo.DeleteQuiz(ctx, quiz.ID)
+	}
 
 	return &pb.AnswerQuestionsResponse{
 		Score:   score,

@@ -68,25 +68,54 @@ class SpotifyClient:
                 logger.error(f"Erreur Auth Spotify: {e}")
                 raise
 
-    async def get_playlist_tracks(self, playlist_id: str) -> List[Dict[str, Any]]:
+    async def get_playlist_tracks(self, playlist_id: str, max_tracks: int = 300) -> List[Dict[str, Any]]:
+        """
+        Récupère jusqu'à 'max_tracks' morceaux d'une playlist en paginant.
+        """
         token = await self.get_valid_token()
         url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
         headers = {"Authorization": f"Bearer {token}"}
-        params = {
-            "limit": 50,
-            "fields": "items(track(id,name,album(name,release_date),artists(id,name),popularity))"
-        }
+
+        all_tracks = []
+        offset = 0
+        limit_per_call = 100 # Maximum autorisé par Spotify par appel
 
         async with httpx.AsyncClient() as client:
-            try:
-                response = await client.get(url, headers=headers, params=params)
-                if response.status_code == 404:
-                    return []
-                response.raise_for_status()
-                data = response.json()
-                return [item['track'] for item in data.get('items', []) if item.get('track')]
-            except httpx.HTTPError as e:
-                return []
+            while len(all_tracks) < max_tracks:
+                params = {
+                    "limit": limit_per_call,
+                    "offset": offset,
+                    # J'ai ajouté 'total' dans fields pour info, mais le mécanisme repose sur items
+                    "fields": "items(track(id,name,album(name,release_date),artists(id,name),popularity)),total"
+                }
+
+                try:
+                    response = await client.get(url, headers=headers, params=params)
+                    if response.status_code == 404:
+                        return [] # Playlist introuvable
+
+                    response.raise_for_status()
+                    data = response.json()
+
+                    items = data.get('items', [])
+                    if not items:
+                        break # Plus de morceaux disponibles
+
+                    # On nettoie et on ajoute
+                    valid_tracks = [item['track'] for item in items if item.get('track')]
+                    all_tracks.extend(valid_tracks)
+
+                    # Si on a reçu moins que demandé (ex: 42 reçus pour limite 100), c'est la fin
+                    if len(items) < limit_per_call:
+                        break
+
+                    offset += limit_per_call
+
+                except httpx.HTTPError as e:
+                    print(f"Erreur lors de la pagination : {e}")
+                    break
+
+        return all_tracks[:max_tracks]
 
     async def get_user_public_playlists_artists(self, user_id: str) -> List[str]:
         """
@@ -153,6 +182,33 @@ class SpotifyClient:
                 return data.get('tracks', [])
             except Exception: return []
 
+    async def get_artists(self, artist_ids: List[str]) -> List[Dict[str, Any]]:
+        """Récupère les détails complets (avec genres) pour une liste d'IDs d'artistes."""
+        if not artist_ids:
+            return []
+            
+        token = await self.get_valid_token()
+        url = "https://api.spotify.com/v1/artists"
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        all_artists = []
+        # Spotify API limite à 50 IDs par appel
+        chunk_size = 20
+        for i in range(0, len(artist_ids), chunk_size):
+            chunk = artist_ids[i:i + chunk_size]
+            params = {"ids": ",".join(chunk)}
+            
+            async with httpx.AsyncClient() as client:
+                try:
+                    response = await client.get(url, headers=headers, params=params)
+                    response.raise_for_status()
+                    data = response.json()
+                    all_artists.extend(data.get('artists', []))
+                except Exception as e:
+                    logger.error(f"Erreur fetch artists details: {e}")
+                    
+        return all_artists
+
 class CatalogClient:
     def __init__(self, url: str):
         self.url = url
@@ -160,16 +216,47 @@ class CatalogClient:
     async def send_batch(self, tracks: List[Dict[str, Any]]):
         if not tracks: return
 
+        # 1. Collecter les IDs des artistes
+        artist_ids = set()
+        for t in tracks:
+            if t.get('artists'):
+                main_artist = t['artists'][0]
+                if main_artist.get('id'):
+                    artist_ids.add(main_artist['id'])
+
+        # 2. Récupérer les détails complets des artistes (genres inclus)
+        artists_details_map = {}
+        if artist_ids:
+            # Note: Utilisation de l'instance globale spotify_client
+            # Dans un code plus structuré, on passerait le client en dépendance.
+            try:
+                details = await spotify_client.get_artists(list(artist_ids))
+                for d in details:
+                    if d and d.get('id'):
+                        artists_details_map[d['id']] = d
+            except Exception as e:
+                logger.error(f"Impossible de récupérer les détails artistes: {e}")
+
+        # 3. Construire la map des artistes à envoyer
         artists_map = {}
         for t in tracks:
             if t.get('artists'):
                 main_artist = t['artists'][0]
                 a_id = main_artist['id']
                 if a_id not in artists_map:
+                    # Récupération des genres depuis les détails
+                    raw_genres = []
+                    if a_id in artists_details_map:
+                        raw_genres = artists_details_map[a_id].get('genres', [])
+
+                    final_genres = raw_genres
+                    if not final_genres:
+                        final_genres = ["pop"]
+
                     artists_map[a_id] = {
                         "artist_id": a_id,
                         "name": main_artist['name'],
-                        "genres": []
+                        "genres": final_genres
                     }
         artists_list = list(artists_map.values())
         
@@ -181,6 +268,7 @@ class CatalogClient:
         if artists_list:
             await self._send_graphql(mutation_artists, {"list": artists_list})
 
+        # 4. Préparer et envoyer les tracks
         tracks_input = []
         for t in tracks:
             if t.get('artists') and t.get('album'):
@@ -229,8 +317,8 @@ async def daemon_loop():
         try:
             await spotify_client.get_valid_token()
             tasks = [
-                spotify_client.get_playlist_tracks(PLAYLIST_FRANCE),
-                spotify_client.get_playlist_tracks(PLAYLIST_GLOBAL)
+                spotify_client.get_playlist_tracks(PLAYLIST_FRANCE, 50),
+                spotify_client.get_playlist_tracks(PLAYLIST_GLOBAL, 50)
             ]
             results = await asyncio.gather(*tasks, return_exceptions=True)
             all_tracks = []
