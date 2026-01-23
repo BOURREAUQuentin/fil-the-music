@@ -78,14 +78,13 @@ class SpotifyClient:
 
         all_tracks = []
         offset = 0
-        limit_per_call = 100 # Maximum autorisé par Spotify par appel
+        limit_per_call = 100
 
         async with httpx.AsyncClient() as client:
             while len(all_tracks) < max_tracks:
                 params = {
                     "limit": limit_per_call,
                     "offset": offset,
-                    # J'ai ajouté 'total' dans fields pour info, mais le mécanisme repose sur items
                     "fields": "items(track(id,name,album(name,release_date),artists(id,name),popularity)),total"
                 }
 

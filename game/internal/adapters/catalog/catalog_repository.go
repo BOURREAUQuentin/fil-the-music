@@ -144,6 +144,7 @@ func (r *GraphQLCatalogRepository) processQuestions(
 	allTitles := []string{}
 	allAlbums := []string{}
 	seenAlbums := make(map[string]bool)
+	artistTitles := make(map[string]map[string]bool)
 
 	for _, t := range poolTracks {
 		allTitles = append(allTitles, t.Title)
@@ -151,6 +152,10 @@ func (r *GraphQLCatalogRepository) processQuestions(
 			allAlbums = append(allAlbums, t.AlbumName)
 			seenAlbums[t.AlbumName] = true
 		}
+		if _, ok := artistTitles[t.ArtistID]; !ok {
+			artistTitles[t.ArtistID] = make(map[string]bool)
+		}
+		artistTitles[t.ArtistID][t.Title] = true
 	}
 
 	shuffledTracks := make([]TrackDTO, len(tracks))
@@ -192,14 +197,17 @@ func (r *GraphQLCatalogRepository) processQuestions(
 		switch qType {
 		case 1: // Reverse (Title by Artist)
 			text = fmt.Sprintf("Lequel de ces titres est interprété par %s ?", artist.Name)
-			// Filter titles to exclude those by same artist is tricky without full mapping
-			// For simplicity, we assume pool is random enough, but ideally we should filter.
-			// Let's rely on standard shuffling, chance of collision is low if catalog is large.
-			choices, correctIdx = generateChoices(t.Title, allTitles)
+			isInvalid := func(c string) bool {
+				if titles, ok := artistTitles[artist.ArtistID]; ok {
+					return titles[c]
+				}
+				return false
+			}
+			choices, correctIdx = generateChoices(t.Title, allTitles, isInvalid)
 
 		case 2: // Album
 			text = fmt.Sprintf("Dans quel album trouve-t-on le titre \"%s\" ?", t.Title)
-			choices, correctIdx = generateChoices(t.AlbumName, allAlbums)
+			choices, correctIdx = generateChoices(t.AlbumName, allAlbums, nil)
 
 		case 3: // Date
 			text = fmt.Sprintf("En quelle année est sorti le titre \"%s\" ?", t.Title)
@@ -212,7 +220,7 @@ func (r *GraphQLCatalogRepository) processQuestions(
 
 		default: // 0 - Classic (Artist)
 			text = fmt.Sprintf("Qui est l'interprète du titre \"%s\" ?", t.Title)
-			choices, correctIdx = generateChoices(artist.Name, allArtistNames)
+			choices, correctIdx = generateChoices(artist.Name, allArtistNames, nil)
 		}
 
 		q := domain.Question{
@@ -261,7 +269,7 @@ func containsGenre(genres []string, target string) bool {
 	return false
 }
 
-func generateChoices(correctAnswer string, pool []string) ([]string, int) {
+func generateChoices(correctAnswer string, pool []string, isInvalid func(string) bool) ([]string, int) {
 	choices := []string{correctAnswer}
 
 	// Create a local copy to shuffle for distractors
@@ -270,7 +278,14 @@ func generateChoices(correctAnswer string, pool []string) ([]string, int) {
 	rand.Shuffle(len(shuffledPool), func(i, j int) { shuffledPool[i], shuffledPool[j] = shuffledPool[j], shuffledPool[i] })
 
 	for _, item := range shuffledPool {
-		if item != correctAnswer && len(choices) < 4 {
+		if item == correctAnswer {
+			continue
+		}
+		if isInvalid != nil && isInvalid(item) {
+			continue
+		}
+
+		if len(choices) < 4 {
 			// Basic deduplication for choices
 			found := false
 			for _, c := range choices {
