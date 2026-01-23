@@ -19,7 +19,7 @@ resources:
     dataPropertyOrder:
       "&": ["gateway_url", "admin_token", "admin_id", "user_token", "user_id", "quiz_simple_id"]
 collection:
-  - name: Scénario 4 (en cours) - Création d'un Quiz Genre
+  - name: Scénario 4 - Création d'un Quiz Genre
     meta:
       id: fld_f8eaa12919e4420a8e67010c1afbaedd
       created: 1769069927668
@@ -41,7 +41,7 @@ collection:
           mimeType: application/json
           text: |
             {
-              "genre": "rap"
+              "genre": "pop"
             }
         headers:
           - name: Content-Type
@@ -113,16 +113,12 @@ collection:
           isPrivate: false
           description: ""
           sortKey: -1769084866223
-        method: GET
+        method: POST
         body:
           mimeType: application/json
           text: |-
             {
-            	"answers": [0,
-            							2,
-            							1,
-            							2,
-            							2]
+            	"answers": [0, 2, 1, 2, 2, 1, 2, 1, 0, 0]
             }
         headers:
           - name: Content-Type
@@ -131,7 +127,7 @@ collection:
             value: insomnia/12.3.0
             description: ""
             disabled: false
-          - name: Autorization
+          - name: Authorization
             value: Bearer {{ _.user_token }}
             description: ""
             disabled: false
