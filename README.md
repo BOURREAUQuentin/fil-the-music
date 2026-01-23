@@ -12,6 +12,15 @@ Application de quiz musical où les utilisateurs peuvent tester leurs connaissan
 
 Un quiz est composé d'une suite de questions avec une seule bonne réponse par question. L'application propose plusieurs quiz prédéfinis et permet la création de nouveaux quiz.
 
+### Types de Questions
+
+Chaque quiz peut contenir différents types de questions pour varier les défis :
+
+- **Deviner la date** : Retrouver l'année de sortie d'un morceau ou d'un album
+- **Deviner le titre de l'album** : Identifier l'album d'origine d'un morceau
+- **Deviner l'artiste d'un morceau** : Reconnaître l'interprète d'une chanson
+- **Deviner le titre d'un morceau** : Identifier le nom d'une chanson à partir d'informations contextuelles
+
 ### Types de Quiz
 
 #### Quiz Simple (Admin uniquement)
@@ -19,18 +28,25 @@ Un quiz est composé d'une suite de questions avec une seule bonne réponse par 
 - Contenu défini manuellement par l'administrateur
 - Pas de vérification automatique des données
 - Liberté totale sur le contenu
+- Accessible à tous
 
-#### Quiz Personnalisé (Utilisateurs)
-- Filtrage par genre musical
-- Questions générées aléatoirement depuis le Catalogue
+#### Quiz Par Genre (Utilisateurs)
+- Filtrage par genre musical (exemple : "Pop")
+- Récupération des données depuis le Catalogue
 - Basé sur les données Spotify (artistes, morceaux, dates)
 - Création automatisée accessible à tous
 
+> **⚠️ Attention** : Tous les genres ne sont pas testables car certains n'ont pas de données disponibles. Spotify ne renvoie pas systématiquement de résultats pour tous les genres musicaux. Il est recommandé de tester avec des genres populaires comme "pop", "french rap", etc.
+
 #### Quiz "For You" (Utilisateurs)
-- Personnalisé selon les préférences de l'utilisateur
+- Personnalisé selon les préférences de l'utilisateur (lien Spotify)
 - Basé sur les artistes favoris de l'utilisateur
-- Questions générées depuis le Catalogue
 - Création automatique adaptée au profil
+- Création automatisée accessible à tous
+
+#### Quiz Random (Utilisateurs)
+- Questions aléatoires issues des données du Catalogue
+- Création automatisée accessible à tous
 
 ### Actions Utilisateur
 
@@ -98,12 +114,12 @@ L'application suit une architecture micro-services avec 5 services principaux co
 - **Gestion des utilisateurs**: Création, modification, suppression
 - **Authentification et autorisation**
 - **Gestion des rôles**:
-  - Admin: création d'utilisateurs, quiz, gestion du catalogue
-  - User: jouer aux quiz, consulter statistiques
+    - Admin: création d'utilisateurs, quiz, gestion du catalogue
+    - User: jouer aux quiz, consulter statistiques
 - **Historique et statistiques**:
-  - Sauvegarde de l'historique des quiz
-  - Gestion des scores
-  - Statistiques de performance
+    - Sauvegarde de l'historique des quiz
+    - Gestion des scores
+    - Statistiques de performance
 
 ### 4. Service Game Engine (Go - gRPC)
 
@@ -112,17 +128,17 @@ L'application suit une architecture micro-services avec 5 services principaux co
 
 **Fonctionnalités**:
 - **Gestion des quiz**:
-  - Collection Quizz: Stockage de tous les quiz (simples et personnalisés)
-  - Questions et réponses avec validation
-  - Collection Game: Historique des parties jouées
+    - Collection Quizz: Stockage de tous les quiz (simples et personnalisés)
+    - Questions et réponses avec validation
+    - Collection Game: Historique des parties jouées
 - **Gameplay**:
-  - Génération et affichage des questions
-  - Vérification des réponses
-  - Calcul des scores en temps réel
-  - Sauvegarde des parties
+    - Génération et affichage des questions
+    - Vérification des réponses
+    - Calcul des scores en temps réel
+    - Sauvegarde des parties
 - **Génération automatique**:
-  - Création de questions depuis le Catalogue
-  - Communication haute performance via gRPC
+    - Création de questions depuis le Catalogue
+    - Communication haute performance via gRPC
 
 ### 5. Gateway REST (TypeScript)
 
@@ -181,7 +197,50 @@ L'application utilise **3 bases MongoDB indépendantes**:
 
 ### Prérequis
 - Docker et Docker Compose installés
-- Token Spotify API
+- Compte développeur Spotify pour obtenir les credentials API
+
+### Configuration des Variables d'Environnement
+
+Avant de lancer l'application, vous devez configurer les variables d'environnement nécessaires.
+
+#### 1. Service Ingestion
+
+Créez un fichier `.env` dans le dossier `ingestion/` :
+
+```bash
+# Spotify API Credentials
+SPOTIFY_CLIENT_ID=votre_client_id_spotify
+SPOTIFY_CLIENT_SECRET=votre_client_secret_spotify
+
+# Service URLs
+CATALOG_URL=http://catalog:3200/graphql
+```
+
+> **Comment obtenir vos credentials Spotify ?**
+> 1. Rendez-vous sur [Spotify for Developers](https://developer.spotify.com/dashboard)
+> 2. Connectez-vous avec votre compte Spotify
+> 3. Créez une nouvelle application
+> 4. Récupérez votre `Client ID` et `Client Secret`
+
+#### 2. Service User
+
+Créez un fichier `.env` dans le dossier `user/` :
+
+```bash
+# JWT Configuration
+JWT_SECRET=votre_secret_jwt_tres_securise_ici
+```
+
+> **⚠️ Sécurité** : Modifiez impérativement `JWT_SECRET` avec une chaîne aléatoire sécurisée en production.
+
+#### 3. Gateway
+
+Créez un fichier `.env` dans le dossier `gateway/` :
+
+```bash
+# Gateway Port
+PORT=8080
+```
 
 ### Installation
 
@@ -190,9 +249,8 @@ L'application utilise **3 bases MongoDB indépendantes**:
 git clone https://github.com/BOURREAUQuentin/fil-the-music.git
 cd fil-the-music
 
-# Configurer les variables d'environnement dans ingestion et user
-cp .env.example .env
-# Éditer .env et ajouter les informations manquantes
+# Configurer les variables d'environnement
+# Suivez les instructions de configuration ci-dessus
 
 # Lancer l'environnement Docker
 docker-compose up --build -d
@@ -200,7 +258,7 @@ docker-compose up --build -d
 
 ### Accès
 
-L'API est accessible sur `http://localhost:8000`
+L'API est accessible sur `http://localhost:8080`
 
 ## Tests
 
@@ -228,17 +286,17 @@ docker compose exec user sh
 npx ts-node src/help/setAdminPassword.ts
 ```
 
-✅ Note : Une fois le script terminé ("Password updated : admin123"), le mot de passe de l'admin sera `admin123`.
+✅ **Note** : Une fois le script terminé ("Password updated : admin123"), le mot de passe de l'admin sera `admin123`.
 
 #### 2. Workflow de connexion
 
 Une fois le pré-requis validé, suivez cet ordre pour obtenir vos tokens :
 
-Utilisateur Standard :
+**Utilisateur Standard :**
 - Créer un utilisateur via la route `register`.
 - Se connecter via la route `login` pour récupérer le `user_token` et le `user_id`.
 
-Administrateur :
+**Administrateur :**
 - Se connecter via la route `login` (avec le mot de passe `admin123`) pour récupérer l'`admin_token` et l'`admin_id`.
 
 #### 3. Variables d'environnement Insomnia
@@ -246,7 +304,7 @@ Dans Insomnia, configurez les variables d'environnement suivantes avec les donn�
 
 | Variable      | Valeur / Description                                    |
 | :------------ |:--------------------------------------------------------|
-| `base_url`    | `http://localhost:3201`                                 |
+| `base_url`    | `http://localhost:8080`                                 |
 | `admin_token` | Token obtenu à l'étape connexion admin                  |
 | `user_token`  | Token obtenu à l'étape connexion user                   |
 | `admin_id`    | ID de l'administrateur obtenu à l'étape connexion admin |
@@ -270,10 +328,13 @@ Projet réalisé par un groupe de 4 élèves dans le cadre du cours d'Architectu
 - **Communication inter-services**: REST, GraphQL, gRPC
 - **Scalabilité**: Architecture pensée pour être facilement extensible
 - **Performance**: Utilisation de gRPC pour les opérations critiques (Game Engine)
+- **Sécurité**: Authentification JWT, hachage bcrypt des mots de passe
 
 ## Licence
 
 Ce projet est réalisé dans un cadre académique.
+
+BOURREAU Quentin / SORIN Kevin / CARFANTAN Thomas / KOWALSKI Damien
 
 ---
 
