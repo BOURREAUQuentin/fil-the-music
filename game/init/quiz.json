@@ -1,0 +1,54 @@
+[
+  {
+    "title": "Quiz Culture Musicale",
+    "type": "simple",
+    "creator_id": "admin",
+    "created_at": { "$date": "2024-01-01T10:00:00Z" },
+    "questions": [
+      {
+        "question_id": "q1",
+        "text": "Combien de cordes possède une guitare standard ?",
+        "choices": [
+          "4",
+          "6",
+          "12",
+          "5"
+        ],
+        "correct_answer_index": 1
+      },
+      {
+        "question_id": "q2",
+        "text": "Qui est surnommé le 'Roi de la Pop' ?",
+        "choices": [
+          "Prince",
+          "Elvis Presley",
+          "Michael Jackson",
+          "Freddie Mercury"
+        ],
+        "correct_answer_index": 2
+      },
+      {
+        "question_id": "q3",
+        "text": "Quel instrument possède généralement 88 touches ?",
+        "choices": [
+          "L'Orgue",
+          "Le Clavecin",
+          "L'Accordéon",
+          "Le Piano"
+        ],
+        "correct_answer_index": 3
+      },
+      {
+        "question_id": "q4",
+        "text": "Quel groupe a chanté 'Bohemian Rhapsody' ?",
+        "choices": [
+          "The Beatles",
+          "Queen",
+          "The Rolling Stones",
+          "Led Zeppelin"
+        ],
+        "correct_answer_index": 1
+      }
+    ]
+  }
+]

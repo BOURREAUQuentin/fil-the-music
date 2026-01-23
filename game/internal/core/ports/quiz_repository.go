@@ -1,0 +1,14 @@
+package ports
+
+import (
+	"context"
+
+	"github.com/BOURREAUQuentin/game/internal/core/domain"
+)
+
+type QuizRepository interface {
+	FindAllQuizzes(ctx context.Context) ([]domain.Quiz, error)
+	FindQuizByID(ctx context.Context, id string) (*domain.Quiz, error)
+	CreateQuiz(ctx context.Context, quiz *domain.Quiz) error
+	DeleteQuiz(ctx context.Context, id string) error
+}

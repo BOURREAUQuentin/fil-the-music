@@ -1,0 +1,925 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: FIL_The_Music
+meta:
+  id: wrk_aff923be0aa84bbeac47b2c1bed2523b
+  created: 1766424598080
+  modified: 1766424598080
+  description: ""
+collection:
+  - url: http://127.0.0.1:3200/
+    name: Catalog - Home
+    meta:
+      id: req_84b5990608074b6cb7471ce0ebf9988a
+      created: 1766424622801
+      modified: 1766427434570
+      isPrivate: false
+      description: ""
+      sortKey: -1766424689840
+    method: GET
+    body:
+      mimeType: application/json
+      text: ""
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.0.0
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - name: Tracks
+    meta:
+      id: fld_1eb185b91f5f42f2abf7f2e7e8a13c40
+      created: 1766496553163
+      modified: 1766496585232
+      sortKey: -1766496559346
+      description: ""
+    children:
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - JSON - Success
+        meta:
+          id: req_8c48dd75fa2e4e5782d04a69862cdad7
+          created: 1766424689740
+          modified: 1766496565837
+          isPrivate: false
+          description: ""
+          sortKey: -1766496565815
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"query {\n\t\ttrack_json
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Track by ID - Success
+        meta:
+          id: req_55881925acba4c59804f1a8ba2367cf0
+          created: 1766495791893
+          modified: 1766496582711
+          isPrivate: false
+          description: ""
+          sortKey: -1766496565715
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"query {\n\t\ttrack_by_id(track_id: \"trk_445566\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Track by ID - Failure - Track not found
+        meta:
+          id: req_ead8f79af4274853808daa6dd6609b47
+          created: 1766496604297
+          modified: 1766496737704
+          isPrivate: false
+          description: ""
+          sortKey: -1766460627777.5
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"query {\n\t\ttrack_by_id(track_id: \"trk_445568\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Add track - Success
+        meta:
+          id: req_46b5f899fe3248c1906717f3c40c5eca
+          created: 1766498002784
+          modified: 1766511686721
+          isPrivate: false
+          description: ""
+          sortKey: -1766442658808.75
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tadd_track(track_id: \"trk_445561\", title:
+            \"Test title\", artist_id: \"art_778899\", album_name: \"Test
+            album\", release_date: \"2025-03-12\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Add track - Failure - track_id already exists
+        meta:
+          id: req_49328dfa130044b29cf063860165a55c
+          created: 1766501874199
+          modified: 1766507775903
+          isPrivate: false
+          description: ""
+          sortKey: -1766433674324.375
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tadd_track(track_id: \"trk_112233\", title:
+            \"Test title\", artist_id: \"art_778899\", album_name: \"Test
+            album\", release_date: \"2025-03-12\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Add track - Failure - artist_id does not exist
+        meta:
+          id: req_8bd1d1396ec94998b4d1dffae0b61861
+          created: 1766501917628
+          modified: 1766509869620
+          isPrivate: false
+          description: ""
+          sortKey: -1766429182082.1875
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tadd_track(track_id: \"trk_445562\", title:
+            \"Test title\", artist_id: \"art_778891\", album_name: \"Test
+            album\", release_date: \"2025-03-12\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Update track - Success - Update all fields
+        meta:
+          id: req_ff531d754dbf453fbc9ed878fee5cdc4
+          created: 1766505095413
+          modified: 1766507790130
+          isPrivate: false
+          description: ""
+          sortKey: -1766426935961.0938
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_track(track_id: \"trk_112233\", title:
+            \"Test title 2\", artist_id: \"art_123456\", album_name: \"Test
+            album 2\", release_date: \"2024-03-12\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Update track - Success - Update title only
+        meta:
+          id: req_34df05aeefaa412d8577336cb4746eec
+          created: 1766505279772
+          modified: 1766507796350
+          isPrivate: false
+          description: ""
+          sortKey: -1766425812900.5469
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_track(track_id: \"trk_112233\", title:
+            \"Test title 3\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Update track - Failure - No fields provided for update
+        meta:
+          id: req_3319ab8432b943aaa6d669384dc34059
+          created: 1766505895436
+          modified: 1766507808243
+          isPrivate: false
+          description: ""
+          sortKey: -1766425251370.2734
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_track(track_id: \"trk_112233\")
+            {\n\t\t\t_id\n\t\t\ttrack_id\n\t\t\ttitle\n\t\t\tartist_id\n\t\t\talbum_name\n\t\t\trelease_date\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Remove track - Success
+        meta:
+          id: req_c775bf5d6bfe47d4a63a962460ce5b78
+          created: 1766507088428
+          modified: 1766508271724
+          isPrivate: false
+          description: ""
+          sortKey: -1766424970605.1367
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tremove_track(track_id: \"trk_112233\")\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Remove track - Failure - Track not found
+        meta:
+          id: req_4d481565295b4b2dad37ce102fdb4d20
+          created: 1766507257720
+          modified: 1766508407249
+          isPrivate: false
+          description: ""
+          sortKey: -1766424830222.5684
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tremove_track(track_id: \"trk_112232\")\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Add many tracks - Success
+        meta:
+          id: req_09d5bca6bb56406b8ca5318916a7300d
+          created: 1766511707562
+          modified: 1766512278045
+          isPrivate: false
+          description: ""
+          sortKey: -1766428059021.6406
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n  add_many_tracks(tracks_list:
+            [\n    {\n      track_id: \"trk_006\",\n      title: \"Harder,
+            Better, Faster, Stronger\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Discovery\",\n      release_date:
+            \"2001-03-12\"\n    },\n    {\n      track_id:
+            \"trk_007\",\n      title: \"Around the World\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Homework\",\n      release_date:
+            \"1997-01-20\"\n    },\n    {\n      track_id:
+            \"trk_008\",\n      title: \"Genesis\",\n      artist_id:
+            \"art_123456\",\n      album_name: \"Cross\",\n      release_date:
+            \"2007-06-11\"\n    },\n    {\n      track_id:
+            \"trk_009\",\n      title: \"Safe and Sound\",\n      artist_id:
+            \"art_123456\",\n      album_name: \"Woman\",\n      release_date:
+            \"2016-11-18\"\n    },\n    {\n      track_id:
+            \"trk_010\",\n      title: \"Digital Love\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Discovery\",\n      release_date:
+            \"2001-03-12\"\n    }\n  ])\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Add many tracks - Failure - track_ids already exist
+        meta:
+          id: req_b4d904888de845a0b9f8de393fa6f004
+          created: 1766512082646
+          modified: 1766512233645
+          isPrivate: false
+          description: ""
+          sortKey: -1766427497491.3672
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n  add_many_tracks(tracks_list:
+            [\n    {\n      track_id: \"trk_112233\",\n      title: \"Harder,
+            Better, Faster, Stronger\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Discovery\",\n      release_date:
+            \"2001-03-12\"\n    },\n    {\n      track_id:
+            \"trk_011\",\n      title: \"Around the World\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Homework\",\n      release_date:
+            \"1997-01-20\"\n    },\n    {\n      track_id:
+            \"trk_012\",\n      title: \"Genesis\",\n      artist_id:
+            \"art_123456\",\n      album_name: \"Cross\",\n      release_date:
+            \"2007-06-11\"\n    },\n    {\n      track_id:
+            \"trk_112233\",\n      title: \"Safe and Sound\",\n      artist_id:
+            \"art_123456\",\n      album_name: \"Woman\",\n      release_date:
+            \"2016-11-18\"\n    },\n    {\n      track_id:
+            \"trk_445566\",\n      title: \"Digital Love\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Discovery\",\n      release_date:
+            \"2001-03-12\"\n    }\n  ])\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Tracks - Add many tracks - Failure - artist_id does not exist
+        meta:
+          id: req_29feb639ce954d0d83eec2700e2531b2
+          created: 1766512266982
+          modified: 1766512339884
+          isPrivate: false
+          description: ""
+          sortKey: -1766427216726.2305
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n  add_many_tracks(tracks_list:
+            [\n    {\n      track_id: \"trk_020\",\n      title: \"Harder,
+            Better, Faster, Stronger\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Discovery\",\n      release_date:
+            \"2001-03-12\"\n    },\n    {\n      track_id:
+            \"trk_021\",\n      title: \"Around the World\",\n      artist_id:
+            \"art_778895\",\n      album_name:
+            \"Homework\",\n      release_date:
+            \"1997-01-20\"\n    },\n    {\n      track_id:
+            \"trk_022\",\n      title: \"Genesis\",\n      artist_id:
+            \"art_123455\",\n      album_name: \"Cross\",\n      release_date:
+            \"2007-06-11\"\n    },\n    {\n      track_id:
+            \"trk_023\",\n      title: \"Safe and Sound\",\n      artist_id:
+            \"art_123456\",\n      album_name: \"Woman\",\n      release_date:
+            \"2016-11-18\"\n    },\n    {\n      track_id:
+            \"trk_024\",\n      title: \"Digital Love\",\n      artist_id:
+            \"art_778899\",\n      album_name:
+            \"Discovery\",\n      release_date:
+            \"2001-03-12\"\n    }\n  ])\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Artists
+    meta:
+      id: fld_5b11b9feea0e4f8bbf465acb1763539e
+      created: 1766496559246
+      modified: 1766496559246
+      sortKey: -1766496559246
+      description: ""
+    children:
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - JSON - Success
+        meta:
+          id: req_cbc617852b344f998956c3d9c5e3423a
+          created: 1766494940061
+          modified: 1766496710377
+          isPrivate: false
+          description: ""
+          sortKey: -1766496577166
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"query {\n\t\tartist_json
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Artist by ID - Success
+        meta:
+          id: req_ad51415ffaa141a8b25bc3365803430e
+          created: 1766496663986
+          modified: 1766496715248
+          isPrivate: false
+          description: ""
+          sortKey: -1766496577066
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"query {\n\t\tartist_by_id(artist_id: \"art_778899\")
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Artist by ID - Failure - Artist not found
+        meta:
+          id: req_d1359fa9bb12469da2620125b44f0569
+          created: 1766496756778
+          modified: 1766496761341
+          isPrivate: false
+          description: ""
+          sortKey: -1766496571440.5
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"query {\n\t\tartist_by_id(artist_id: \"art_778894\")
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - add artist - Success
+        meta:
+          id: req_93fc6bcfc345466284c6ab6aeab9e68d
+          created: 1766502094636
+          modified: 1766507858804
+          isPrivate: false
+          description: ""
+          sortKey: -1766496568627.75
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tadd_artist(artist_id: \"art_778894\", name:
+            \"Test name\", genres: [\"électro, pop, drill\"])
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - add artist - Failure - artist_id already exists
+        meta:
+          id: req_9dccb837f2594e41844ab1de85cfc328
+          created: 1766502305417
+          modified: 1766507867509
+          isPrivate: false
+          description: ""
+          sortKey: -1766496567221.375
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tadd_artist(artist_id: \"art_778899\", name:
+            \"Test name\", genres: [\"électro, pop, drill\"])
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Update artist - Success - Update all fields
+        meta:
+          id: req_b393e3e6bc634540934974fd4223c8e5
+          created: 1766506066383
+          modified: 1766507874108
+          isPrivate: false
+          description: ""
+          sortKey: -1766496566518.1875
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_artist(artist_id: \"art_778899\", name:
+            \"Test name 2\", genres: [\"kpop\", \"jazz\"])
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Update artist - Success - Update name only
+        meta:
+          id: req_8c9e93c62a654ba2abe15f3cdfa12fed
+          created: 1766506313013
+          modified: 1766507882532
+          isPrivate: false
+          description: ""
+          sortKey: -1766496566166.5938
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_artist(artist_id: \"art_778899\", name:
+            \"Test name 3\")
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Update artist - Success - Update genres to nothing
+        meta:
+          id: req_a346130e79b9451a9ca93ce42af0473e
+          created: 1766506358966
+          modified: 1766508416031
+          isPrivate: false
+          description: ""
+          sortKey: -1766496565990.7969
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_artist(artist_id: \"art_778899\",
+            genres: [])
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Update artist - Failure - No fields provided for
+          update
+        meta:
+          id: req_4fda9213be4044ceacb12ba466c418fe
+          created: 1766506409942
+          modified: 1766507897370
+          isPrivate: false
+          description: ""
+          sortKey: -1766496565902.8984
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tupdate_artist(artist_id: \"art_778899\")
+            {\n\t\t\t_id\n\t\t\tartist_id\n\t\t\tname\n\t\t\tgenres\n\t\t}\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Remove artist - Success
+        meta:
+          id: req_7f291c6fc99d4a4198e3a260ea21119a
+          created: 1766508433052
+          modified: 1766508455380
+          isPrivate: false
+          description: ""
+          sortKey: -1766496565858.9492
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tremove_artist(artist_id: \"art_778899\")\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - Remove artist - Failure - Artist not found
+        meta:
+          id: req_61b9a78d3fd1450dac916c0401c90f2e
+          created: 1766508480215
+          modified: 1766508490935
+          isPrivate: false
+          description: ""
+          sortKey: -1766496565836.9746
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n\t\tremove_artist(artist_id: \"art_778898\")\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - add many artist - Success
+        meta:
+          id: req_3da2851edb114f2a98cb4f698eaf300a
+          created: 1766512799230
+          modified: 1766512878847
+          isPrivate: false
+          description: ""
+          sortKey: -1766496566869.7812
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n  add_many_artists(artists_list:
+            [\n    {\n      artist_id: \"art_carpentercut\",\n      name:
+            \"Carpenter Brut\",\n      genres: [\"Synthwave\",
+            \"Darksynth\"]\n    },\n    {\n      artist_id:
+            \"art_kavinsky\",\n      name: \"Kavinsky\",\n      genres:
+            [\"Electro House\", \"Synthwave\"]\n    }\n  ])\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://127.0.0.1:3200/graphql
+        name: Catalog - Artists - add many artist - Failure - artist_ids already exist
+        meta:
+          id: req_81adf10bebd544cfa1787887a2510b6e
+          created: 1766513006918
+          modified: 1766513659790
+          isPrivate: false
+          description: ""
+          sortKey: -1766496566693.9844
+        method: POST
+        body:
+          mimeType: application/graphql
+          text: '{"query":"mutation {\n  add_many_artists(artists_list:
+            [\n    {\n      artist_id: \"art_carpentercut2\",\n      name:
+            \"Carpenter Brut\",\n      genres: [\"Synthwave\",
+            \"Darksynth\"]\n    },\n    {\n      artist_id:
+            \"art_778899\",\n      name: \"Kavinsky\",\n      genres: [\"Electro
+            House\", \"Synthwave\"]\n    }\n  ])\n}"}'
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_b4d24327d279448a8e119b4e16b921ce
+    created: 1758402662078
+    modified: 1758402662078
+environments:
+  name: Base Environment
+  meta:
+    id: env_99047877c9cb43a99a30c952f28872ab
+    created: 1758402662076
+    modified: 1759260301110
+    isPrivate: false
+  data:
+    movie_url: http://127.0.0.1:3200
+    user_url: http://127.0.0.1:3201
+    schedule_url: http://127.0.0.1:3202
+    booking_url: http://127.0.0.1:3203

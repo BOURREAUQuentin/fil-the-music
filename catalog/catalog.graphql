@@ -1,0 +1,54 @@
+type Query {
+    # Lecture seule
+    track_json: [Track]
+    artist_json: [Artist]
+    track_by_id(track_id: String!): Track
+    artist_by_id(artist_id: String!): Artist
+    questions_by_artists(artists: [String]!, limit: Int!): [Track]
+}
+
+type Mutation {
+    # Création
+    add_track(track_id: String!, title: String!, artist_id: String!, album_name: String!, release_date: String!): Track
+    add_many_tracks(tracks_list: [TrackInput!]!): String
+    add_artist(artist_id: String!, name: String!, genres: [String!]!): Artist
+    add_many_artists(artists_list: [ArtistInput!]!): String
+
+    # Mise à jour
+    update_track(track_id: String!, title: String, artist_id: String, album_name: String, release_date: String): Track
+    update_artist(artist_id: String!, name: String, genres: [String!]): Artist
+
+    # Suppression
+    remove_track(track_id: String!): String
+    remove_artist(artist_id: String!): String
+}
+
+type Track {
+    _id: String
+    track_id: String
+    title: String
+    artist_id: String
+    album_name: String
+    release_date: String
+}
+
+type Artist {
+    _id: String
+    artist_id: String
+    name: String
+    genres: [String]
+}
+
+input TrackInput {
+    track_id: String!
+    title: String!
+    artist_id: String!
+    album_name: String!
+    release_date: String!
+}
+
+input ArtistInput {
+    artist_id: String!
+    name: String!
+    genres: [String!]!
+}

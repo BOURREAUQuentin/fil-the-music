@@ -1,0 +1,833 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: fil-the-music
+meta:
+  id: wrk_831b53f3fc7348889aec8fe5a8cd899b
+  created: 1769069927667
+  modified: 1769088241595
+  description: ""
+resources:
+  - _id: env_base
+    _type: environment
+    name: Base Environment
+    data:
+      gateway_url: http://localhost:8080
+      admin_token: ""
+      user_token: ""
+      user_id: ""
+      admin_id: ""
+    dataPropertyOrder:
+      "&": ["gateway_url", "admin_token", "admin_id", "user_token", "user_id", "quiz_simple_id"]
+collection:
+  - name: Scénario 4 - Création d'un Quiz Genre
+    meta:
+      id: fld_f8eaa12919e4420a8e67010c1afbaedd
+      created: 1769069927668
+      modified: 1769088214270
+      sortKey: -1769069927669.5
+      description: ""
+    children:
+      - url: "{{ _.gateway_url }}/api/game/start/genre"
+        name: 4.2 Créer un Quiz
+        meta:
+          id: req_1fc1583a209b42409affae77930e3fd0
+          created: 1769069927670
+          modified: 1769087853457
+          isPrivate: false
+          description: → Copier id dans quiz_id
+          sortKey: -1769069927670
+        method: POST
+        body:
+          mimeType: application/json
+          text: |
+            {
+              "genre": "pop"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/quizzes"
+        name: 4.3 Vérifier le Quiz créé
+        meta:
+          id: req_ec6aad8f2c6b4dbeaeb96db68254854b
+          created: 1769069927670
+          modified: 1769087856324
+          isPrivate: false
+          description: ""
+          sortKey: -1769069927670
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/active"
+        name: 4.4 Vérifier que le Quiz est actif
+        meta:
+          id: req_0c2b4dbc70844526b39a38a92568afe0
+          created: 1769083686315
+          modified: 1769087858959
+          isPrivate: false
+          description: ""
+          sortKey: -1769083686315
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/answer"
+        name: 4.5 Utilisateur répond au Quiz
+        meta:
+          id: req_8a70fd9b1fdf4b4d9774fec96cdf706b
+          created: 1769084866223
+          modified: 1769087862006
+          isPrivate: false
+          description: ""
+          sortKey: -1769084866223
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"answers": [0, 2, 1, 2, 2, 1, 2, 1, 0, 0]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/users/auth/login"
+        name: 4.1 Login User
+        meta:
+          id: req_1c623219f46b4a62bc43e951bc59e9ab
+          created: 1769087085274
+          modified: 1769087849148
+          isPrivate: false
+          description: ""
+          sortKey: -1769069927570
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "player1@example.com",
+              "password": "Player123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Health Check
+    meta:
+      id: fld_d5c4fe2d70f34e489dd9965dd64dc38e
+      created: 1769069927676
+      modified: 1769069927676
+      sortKey: -1769069927676
+      description: ""
+    children:
+      - url: "{{ _.gateway_url }}/health"
+        name: Gateway Health
+        meta:
+          id: req_fa13dc50768c4dc3bb5b4a39514e2822
+          created: 1769069927676
+          modified: 1769069927676
+          isPrivate: false
+          description: ""
+          sortKey: -1769069927676
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Scénario 2 - Création d'un Quiz Simple
+    meta:
+      id: fld_546c976285c54f9db359376558488dcd
+      created: 1769085249365
+      modified: 1769086633050
+      sortKey: -1769069927669.375
+      description: ""
+    children:
+      - url: "{{ _.gateway_url }}/api/users/auth/login"
+        name: 2.1 Login User
+        meta:
+          id: req_01d130af9eba431a94f19c39f8bc5907
+          created: 1769085291896
+          modified: 1769085408040
+          isPrivate: false
+          description: ""
+          sortKey: -1769085291896
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "player1@example.com",
+              "password": "Player123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/users/auth/login"
+        name: 2.3 Login Admin
+        meta:
+          id: req_5142c463ce41415a8f16040941d26def
+          created: 1769085361213
+          modified: 1769085545184
+          isPrivate: false
+          description: ""
+          sortKey: -1769085291996
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "admin@quizmusic.com",
+              "password": "admin123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/create/simple"
+        name: 2.2 Création d'un Quiz Simple (Access Denied)
+        meta:
+          id: req_3a99b393eb7e47ad9963557c5957c8cc
+          created: 1769085440116
+          modified: 1769085845210
+          isPrivate: false
+          description: ""
+          sortKey: -1769085291946
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "title": "new quiz",
+                "type": "SIMPLE",
+                "creator_id": "user id",
+                "questions": [
+                            {
+                                "choices": [
+                                    "Oui",
+                                    "Non",
+                                    "Peut-être",
+                                    "Je ne sais pas"
+                                ],
+                                "question_id": "q1",
+                                "text": "Question 1",
+                                "correct_answer_index": 0
+                            }
+                        ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Autorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/create/simple"
+        name: 2.4 Création d'un Quiz Simple (Success)
+        meta:
+          id: req_bd93ae9fa33f46ff9653e143a73fc8fa
+          created: 1769085539015
+          modified: 1769085849681
+          isPrivate: false
+          description: ""
+          sortKey: -1769085292096
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+                "title": "new quiz",
+                "type": "SIMPLE",
+                "creator_id": "user id",
+                "questions": [
+                            {
+                                "choices": [
+                                    "Oui",
+                                    "Non",
+                                    "Peut-être",
+                                    "Je ne sais pas"
+                                ],
+                                "question_id": "q1",
+                                "text": "Question 1",
+                                "correct_answer_index": 0
+                            }
+                        ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.admin_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/start/{{ _.quiz_simple_id }}"
+        name: 2.5 User rejoint le Quiz
+        meta:
+          id: req_121c3895a29842dc946e63ec402e0664
+          created: 1769085930293
+          modified: 1769086025329
+          isPrivate: false
+          description: ""
+          sortKey: -1769085930293
+        method: POST
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/sessions"
+        name: 2.6 Récupérer toutes les sessions (Forbidden)
+        meta:
+          id: req_656511741e13468fa6df7d8fc6cb23c8
+          created: 1769086042252
+          modified: 1769086091527
+          isPrivate: false
+          description: ""
+          sortKey: -1769086042252
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/active"
+        name: 2.7 Récupérer son Quiz en cours
+        meta:
+          id: req_c5d15be6e2f94fcc9cd8b295228d51c4
+          created: 1769086099836
+          modified: 1769086138987
+          isPrivate: false
+          description: ""
+          sortKey: -1769086099836
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/answer"
+        name: 2.8 Répondre à la question du Quiz (Error)
+        meta:
+          id: req_fdd3310dcd094aeebf9d0a301096a1b6
+          created: 1769086165923
+          modified: 1769086245035
+          isPrivate: false
+          description: ""
+          sortKey: -1769086165923
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"answers": [2, 1]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/answer"
+        name: 2.9 Répondre à la question du Quiz (Bad answer)
+        meta:
+          id: req_00a1a71f84ed47e6b1e3df8e1fd6d073
+          created: 1769086235617
+          modified: 1769086361416
+          isPrivate: false
+          description: ""
+          sortKey: -1769086166023
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"answers": [2]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/start/{{ _.quiz_simple_id }}"
+        name: 2.11 User re-rejoint le Quiz
+        meta:
+          id: req_9ceda99d9d9b41d8a3e4ffea9591fa08
+          created: 1769086314308
+          modified: 1769086412051
+          isPrivate: false
+          description: ""
+          sortKey: -1769086166123
+        method: POST
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/answer"
+        name: 2.12 Répondre à la question du Quiz (Good answer)
+        meta:
+          id: req_40a53cd33da4444d868828c835d3f72b
+          created: 1769086347165
+          modified: 1769086413785
+          isPrivate: false
+          description: ""
+          sortKey: -1769086166223
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"answers": [0]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/active"
+        name: 2.10 Récupérer son Quiz en cours (Session closed)
+        meta:
+          id: req_03397f0dcfec4905b52ef41be2a64b77
+          created: 1769086405341
+          modified: 1769086409237
+          isPrivate: false
+          description: ""
+          sortKey: -1769086166073
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Scénario 1 - Création d'un Quiz Random
+    meta:
+      id: fld_c5c019c481a146d38cefa4d0672e67d2
+      created: 1769086582235
+      modified: 1769086625506
+      sortKey: -1769069927669.25
+      description: ""
+    children:
+      - url: "{{ _.gateway_url }}/api/users/auth/register"
+        name: 1.1 Register User
+        meta:
+          id: req_06583be3b42b4f41b0519253d9aead17
+          created: 1769086659655
+          modified: 1769087309470
+          isPrivate: false
+          description: → Copier token dans user_token, user.id dans user_id
+          sortKey: -1769086621546
+        method: POST
+        body:
+          mimeType: application/json
+          text: >
+            {
+              "username": "player1",
+              "email": "player1@example.com",
+              "password": "Player123!",
+            	"spotify_username": "https://open.spotify.com/user/k0aliofh326chi4k74ui7ip25"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/start/random"
+        name: 1.2 Lancer d'un Quiz Random (Create and Launch)
+        meta:
+          id: req_9216fa7ba2774ef7aeefb974527ec79d
+          created: 1769086727652
+          modified: 1769086792828
+          isPrivate: false
+          description: ""
+          sortKey: -1769086727652
+        method: POST
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/answer"
+        name: 1.3 Répondre aux questions du Quiz
+        meta:
+          id: req_52d58ba3ae1246f38a4954b542ea160b
+          created: 1769086901489
+          modified: 1769087008945
+          isPrivate: false
+          description: ""
+          sortKey: -1769086727752
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"answers": [1, 2, 1, 3, 2, 1, 2, 0, 1, 2]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Scénario 3 - Création d'un Quiz ForYou
+    meta:
+      id: fld_4b16636b23234cccb5105cc3ba6c2d86
+      created: 1769087033731
+      modified: 1769087053823
+      sortKey: -1769069927669.4375
+      description: ""
+    children:
+      - url: "{{ _.gateway_url }}/api/game/start/foryou"
+        name: 3.2 Lancer d'un Quiz ForYou (Create and Launch)
+        meta:
+          id: req_38c1bfcff3bd41b5b0b41613d4b569bb
+          created: 1769087111617
+          modified: 1769087291403
+          isPrivate: false
+          description: ""
+          sortKey: -1769087088252
+        method: POST
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/game/answer"
+        name: 3.3 Répondre aux questions du Quiz
+        meta:
+          id: req_f5830b7161454294a9a0159c7c94c7ec
+          created: 1769087705653
+          modified: 1769087708468
+          isPrivate: false
+          description: ""
+          sortKey: -1769087088352
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"answers": [1, 2, 1, 3, 2, 1, 2, 0, 1, 2]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+          - name: Authorization
+            value: Bearer {{ _.user_token }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.gateway_url }}/api/users/auth/login"
+        name: 3.1 Login User
+        meta:
+          id: req_84ff8e0cf6e149f7832eef85672e6106
+          created: 1769087839761
+          modified: 1769087839761
+          isPrivate: false
+          description: ""
+          sortKey: -1769086907952
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "player1@example.com",
+              "password": "Player123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_79e2065aee4ea4814602ac4bedba720925b04657
+    created: 1769069927678
+    modified: 1769069927678
+environments:
+  name: Base Environment
+  meta:
+    id: env_79e2065aee4ea4814602ac4bedba720925b04657
+    created: 1769069927677
+    modified: 1769088018581
+    isPrivate: false
+  data:
+    gateway_url: http://localhost:8080
+    admin_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzIyMjUwM2IyNGIwODA2ODI4NGQwYyIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc2OTA4Nzk5NywiZXhwIjoxNzY5NjkyNzk3fQ.2A8GhyZEaQxE0Tg4O8M2BaTD8eU1x_R6W2WMpT09KJI
+    admin_id: 697222503b24b08068284d0c
+    user_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzIyMjcyODM2NjM2NWY3YjlkM2VjZiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzY5MDg3NjAyLCJleHAiOjE3Njk2OTI0MDJ9.DXZiHc0-6LQlQeSLMDJXZGFU2jFBxKW6D1lEkvnyta8
+    user_id: 697222728366365f7b9d3ecf
+    quiz_simple_id: ""
